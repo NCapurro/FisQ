@@ -1,11 +1,48 @@
-@import 'tailwindcss';
+/*@import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@source '../** /*.blade.php';  ACA hay q borrar el espacio entre ** y /*
+@source '../** /*.js';          aca tambien
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+} */
+
+:root {
+    /* --- COLOR PRINCIPAL (Primary) --- */
+    /* Este cambia tu Navbar y los botones principales */
+    /* Ejemplo: Un azul más oscuro y serio tipo urna electoral */
+    --bs-primary: #00735c; 
+    --bs-primary-rgb: 0, 115, 92; /* Necesario para las sombras y transparencias */
+
+    /* --- COLOR SECUNDARIO (Secondary) --- */
+    /* Botones de "Cancelar" o elementos menos importantes */
+    --bs-secondary: #6c757d;
+    --bs-secondary-rgb: 108, 117, 125;
+
+    /* --- COLOR DE FONDO (Body Background) --- */
+    /* Si quieres que no sea blanco puro, sino un gris muy suave */
+    --bs-body-bg: #f8f9fa;
+    
+    /* --- COLOR DE EXITO (Success) --- */
+    /* Botones de guardar / Mesas Escrutadas */
+    --bs-success: #198754;
+    --bs-success-rgb: 25, 135, 84;
+}
+
+/* Opcional: Ajuste para que la Navbar se vea más elegante */
+.navbar {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+    border: none; /* Quitar bordes grises feos a las tarjetas */
+    transition: transform 0.2s;
+}
+
+/* Efecto hover suave en las tarjetas de mesas */
+.card:hover {
+    transform: translateY(-2px);
 }

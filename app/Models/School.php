@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 class School extends Model
 {
-    protected $fillable = ['name', 'department_id'];
+    protected $fillable = ['name', 'department_id', 'address'];
 
 
     // Pertenece a un departamento

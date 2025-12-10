@@ -19,7 +19,7 @@ class UserController extends Controller
     {
         // Traemos usuarios con su departamento para mostrar "Juan Perez - Paraná"
         // Opcional: Filtramos para no mostrar al admin a sí mismo si se desea
-        $users = User::with('department')->get();
+        $users = User::with('department', 'mesas')->get();
 
         return view('users.index', compact('users'));
     }

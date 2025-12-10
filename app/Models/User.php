@@ -30,6 +30,7 @@ class User extends Authenticatable
         'phone',
         'address',
         'department_id',
+        'role',
     ];
 
     //El rol se asigna manualmente para definir admins

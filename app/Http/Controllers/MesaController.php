@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Mesa;
 use App\Models\School;
 use App\Models\User;
+use App\Models\Department;
 
 
 class MesaController extends Controller
@@ -16,17 +17,34 @@ class MesaController extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->user(); // Usuario logueado
+        $user = $request->user();
 
+        // 1. Traemos los departamentos para el select del filtro (solo Admin lo usa, pero no daña traerlo)
+        $departments = Department::all();
+
+        // 2. Iniciamos la consulta base cargando las relaciones necesarias
+        // 'school.department' es vital para mostrar el nombre del depto en la tarjeta o filtro
+        $query = Mesa::with(['school.department', 'fiscal']);
+
+        // 3. Lógica según el Rol
         if ($user->role === 'admin') {
-            // Admin ve todo, cargamos relaciones para mostrar nombres en la tabla
-            $mesas = Mesa::with(['school', 'fiscal'])->get();
+            // Si es Admin, revisamos si mandó el filtro por URL (?department_id=5)
+            if ($request->filled('department_id')) {
+                // Filtramos las mesas cuya escuela pertenezca a ese departamento
+                $query->whereHas('school', function($q) use ($request) {
+                    $q->where('department_id', $request->department_id);
+                });
+            }
         } else {
-            // Fiscal ve solo lo suyo
-            $mesas = Mesa::with(['school'])->where('user_id', $user->id)->get();
+            // Si es Fiscal, forzamos que solo vea sus mesas
+            $query->where('user_id', $user->id);
         }
 
-        return view('mesas.index', compact('mesas'));
+        // 4. Ordenamos y ejecutamos la consulta final
+        $mesas = $query->orderBy('number', 'asc')->get();
+
+        // 5. Enviamos 'mesas' Y 'departments' a la vista
+        return view('mesas.index', compact('mesas', 'departments'));
     }
 
     /**
@@ -72,18 +90,16 @@ class MesaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        $mesa = Mesa::findOrFail($id);
-        $schools = School::all();
-        
-        // Buscamos solo usuarios con rol 'user' para asignar
-        // Asumiendo que en DB el rol fiscal es 'user' 
-        $fiscals = User::where('role', 'user')->get(); 
+  public function edit(string $id)
+{
+    $mesa = Mesa::findOrFail($id);
+    $schools = School::all();
+    
+    // IMPORTANTE: Filtrar solo usuarios con rol 'user' (fiscales)
+    $fiscals = \App\Models\User::where('role', 'user')->get(); 
 
-        return view('mesas.edit', compact('mesa', 'schools', 'fiscals'));
-    }
-
+    return view('mesas.edit', compact('mesa', 'schools', 'fiscals'));
+}
     /**
      * Update the specified resource in storage.
      */
@@ -151,5 +167,137 @@ class MesaController extends Controller
         ], 200);
     }
 
+
+    // --- CREACIÓN MASIVA ---
+
+    public function batchCreate()
+    {
+        // Necesitamos los departamentos para el primer select
+        $departments = \App\Models\Department::all();
+        return view('mesas.batch_create', compact('departments'));
+    }
+
+    public function batchStore(Request $request)
+    {
+        $request->validate([
+            'school_id' => 'required|exists:schools,id',
+            'from' => 'required|integer|min:1',
+            'to' => 'required|integer|gt:from', // 'to' debe ser mayor que 'from'
+        ]);
+
+        $schoolId = $request->school_id;
+        $from = (int)$request->from;
+        $to = (int)$request->to;
+
+        $createdCount = 0;
+        $errors = [];
+
+        // Bucle mágico
+        for ($i = $from; $i <= $to; $i++) {
+            // Verificamos si ya existe para no romper todo
+            $exists = Mesa::where('number', $i)->exists();
+
+            if (!$exists) {
+                Mesa::create([
+                    'number' => $i,
+                    'school_id' => $schoolId,
+                    'status' => 'created'
+                ]);
+                $createdCount++;
+            } else {
+                $errors[] = $i; // Guardamos cuáles no se pudieron crear
+            }
+        }
+
+        $message = "Se crearon $createdCount mesas exitosamente.";
+        if (count($errors) > 0) {
+            $message .= " (Las mesas " . implode(', ', $errors) . " ya existían y se omitieron).";
+        }
+
+        return response()->json(['message' => $message], 200);
+    }
+    
+    // Y necesitamos una API pequeña para obtener escuelas por departamento
+    public function getSchoolsByDepartment($departmentId)
+    {
+        $schools = \App\Models\School::where('department_id', $departmentId)->get();
+        return response()->json($schools);
+    }
+
+
+
+    // --- ASIGNACIÓN MASIVA ---
+
+    public function batchAssign()
+    {
+        $user = auth()->user();
+        
+        // Iniciamos la consulta de fiscales
+        $query = \App\Models\User::where('role', 'user');
+
+        // Si NO es admin (es Fiscal), aplicamos el filtro de departamento
+        if ($user->role !== 'admin') {
+            // "Traer fiscales cuyo departamento sea igual al mío, pero que no sea yo mismo"
+            $query->where('department_id', $user->department_id)
+                  ->where('id', '!=', $user->id);
+        }
+
+        $fiscals = $query->get();
+
+        return view('mesas.batch_assign', compact('fiscals'));
+    }
+
+    public function batchAssignStore(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'from' => 'required|integer|min:1',
+            'to' => 'required|integer|gt:from',
+        ]);
+
+        $targetUserId = $request->user_id; // El fiscal DESTINO
+        $currentUser = auth()->user();     // El fiscal ACTUAL (Logged in)
+        $from = (int)$request->from;
+        $to = (int)$request->to;
+
+        // --- VALIDACIÓN DE SEGURIDAD PARA FISCALES ---
+        if ($currentUser->role !== 'admin') {
+            // 1. Verificar que el destino sea del mismo departamento
+            $targetUser = \App\Models\User::find($targetUserId);
+            if ($targetUser->department_id !== $currentUser->department_id) {
+                return response()->json(['message' => 'No puedes asignar mesas a fiscales de otro departamento.'], 403);
+            }
+        }
+
+        // --- CONSULTA BASE DE MESAS ---
+        $query = Mesa::whereBetween('number', [$from, $to])
+                     ->where('status', '!=', 'scrutinized');
+
+        // --- RESTRICCIÓN DE PROPIEDAD ---
+        if ($currentUser->role !== 'admin') {
+            // El fiscal solo puede reasignar mesas que:
+            // A) Sean suyas actualmente (user_id == current)
+            // B) O estén vacías (user_id == null) dentro de su zona (si quisieras permitir eso)
+            // Por seguridad, generalmente solo dejamos que reasigne LO SUYO:
+            $query->where('user_id', $currentUser->id);
+        }
+
+        // Ejecutar la actualización
+        $affected = $query->update([
+            'user_id' => $targetUserId,
+            'status' => 'asigned'
+        ]);
+
+        if ($affected === 0) {
+            $msg = ($currentUser->role === 'admin') 
+                ? 'No se encontraron mesas disponibles en ese rango.' 
+                : 'No tienes mesas asignadas en ese rango para transferir.';
+            return response()->json(['message' => $msg], 422);
+        }
+
+        return response()->json([
+            'message' => "Se transfirieron $affected mesas correctamente."
+        ], 200);
+    }
 
 }

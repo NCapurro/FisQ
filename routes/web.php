@@ -55,6 +55,17 @@ Route::middleware('auth')->group(function () {
     Route::resource('schools', SchoolController::class);
     Route::resource('political-parties', PoliticalPartyController::class);
     
+
+    // creacion masiva de mesas
+    Route::get('/mesas/creacion-masiva', [MesaController::class, 'batchCreate'])->name('mesas.batch_create');
+    Route::post('/mesas/creacion-masiva', [MesaController::class, 'batchStore'])->name('mesas.batch_store');
+    Route::get('/api/schools/{department_id}', [MesaController::class, 'getSchoolsByDepartment']); // API interna
+
+    // Asignación Masiva
+    Route::get('/mesas/asignacion-masiva', [MesaController::class, 'batchAssign'])->name('mesas.batch_assign');
+    Route::post('/mesas/asignacion-masiva', [MesaController::class, 'batchAssignStore'])->name('mesas.batch_assign_store');
+
+
     // Mesas (CRUD estándar + Rutas personalizadas)
     Route::resource('mesas', MesaController::class);
     // Ruta especial para subir la foto del acta (Axios/Vue)

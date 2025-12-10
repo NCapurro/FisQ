@@ -25,7 +25,7 @@ class PoliticalPartyController extends Controller
      */
     public function create()
     {
-        //
+        return view('political_parties.create');
     }
 
     /**
