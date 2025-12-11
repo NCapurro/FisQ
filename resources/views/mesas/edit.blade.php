@@ -28,12 +28,14 @@
                             <div class="col-md-4 mb-3">
                                 <label class="form-label fw-bold">Número</label>
                                 <input type="number" name="number" class="form-control" 
-                                       value="{{ $mesa->number }}" required>
+                                       value="{{ $mesa->number }}" required 
+                                       @disabled(Auth::user()->role !== 'admin')>
                             </div>
 
                             <div class="col-md-8 mb-3">
                                 <label class="form-label fw-bold">Escuela</label>
-                                <select name="school_id" class="form-select" required>
+                                <select name="school_id" class="form-select" required
+                                @disabled(Auth::user()->role !== 'admin')>
                                     @foreach($schools as $school)
                                         <option value="{{ $school->id }}" 
                                             {{ $mesa->school_id == $school->id ? 'selected' : '' }}>
@@ -54,7 +56,7 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fa-solid fa-user"></i></span>
                                 <select name="user_id" class="form-select">
-                                    <option value="">-- Vacante (Sin asignar) --</option>
+                                   
                                     @foreach($fiscals as $fiscal)
                                         <option value="{{ $fiscal->id }}"
                                             {{ $mesa->user_id == $fiscal->id ? 'selected' : '' }}>

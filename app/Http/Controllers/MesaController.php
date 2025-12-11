@@ -91,41 +91,75 @@ class MesaController extends Controller
      * Show the form for editing the specified resource.
      */
   public function edit(string $id)
-{
-    $mesa = Mesa::findOrFail($id);
-    $schools = School::all();
-    
-    // IMPORTANTE: Filtrar solo usuarios con rol 'user' (fiscales)
-    $fiscals = \App\Models\User::where('role', 'user')->get(); 
+    {
+        $mesa = Mesa::findOrFail($id);
+        $user = auth()->user();
 
-    return view('mesas.edit', compact('mesa', 'schools', 'fiscals'));
-}
+        // SEGURIDAD: Si es fiscal, solo puede editar SUS mesas
+        if ($user->role !== 'admin' && $mesa->user_id !== $user->id) {
+            abort(403, 'No tienes permiso para editar esta mesa.');
+        }
+
+        $schools = School::all();
+        
+        // LOGICA DE FISCALES DISPONIBLES
+        if ($user->role === 'admin') {
+            // Admin ve a todos
+            $fiscals = User::where('role', 'user')->get();
+        } else {
+            // Fiscal ve solo a compañeros de SU departamento
+            $fiscals = User::where('role', 'user')
+                        ->where('department_id', $user->department_id)
+                        ->get();
+        }
+
+        return view('mesas.edit', compact('mesa', 'schools', 'fiscals'));
+    }
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        $mesa = Mesa::findOrFail($id);
+{
+    $mesa = Mesa::findOrFail($id);
+    $user = auth()->user();
 
-        $validated = $request->validate([
-            'number' => 'sometimes|integer|unique:mesas,number,' . $mesa->id,
-            'school_id' => 'sometimes|exists:schools,id',
-            'user_id' => 'nullable|exists:users,id', // Asignar fiscal
-            'status' => 'sometimes|in:created,asigned,scrutinized',
-        ]);
-
-        // Si asignamos un usuario y el estado seguía en 'created', lo pasamos a 'asigned'
-        if (isset($validated['user_id']) && $mesa->status === 'created') {
-            $validated['status'] = 'asigned';
-        }
-
-        $mesa->update($validated);
-
-        return response()->json([
-            'message' => 'Mesa actualizada correctamente',
-            'mesa' => $mesa
-        ], 200);
+    // 1. SEGURIDAD: Solo Admin o el Dueño pueden entrar
+    if ($user->role !== 'admin' && $mesa->user_id !== $user->id) {
+        return response()->json(['message' => 'No tienes permiso para editar esta mesa.'], 403);
     }
+
+    // 2. REGLAS: Quitamos 'status' de aquí. Nadie puede enviarlo.
+    $rules = [
+        'user_id' => 'nullable|exists:users,id',
+    ];
+
+    if ($user->role === 'admin') {
+        $rules['number'] = 'required|integer|unique:mesas,number,' . $mesa->id;
+        $rules['school_id'] = 'required|exists:schools,id';
+    }
+
+    $validated = $request->validate($rules);
+
+    // 3. PREPARAR DATOS (Solo lo que se validó)
+    // El Admin puede actualizar todo (number, school, user_id)
+    // El Fiscal solo actualizará user_id (porque las otras reglas no corrieron para él)
+    $dataToUpdate = $validated;
+
+    // 4. AUTOMATIZACIÓN DE ESTADO (La única forma de cambiar estado aquí)
+    // Si se asigna un fiscal (y no es nulo) y la mesa estaba virgen...
+    if ($request->filled('user_id') && $mesa->status === 'created') {
+        $dataToUpdate['status'] = 'asigned';
+    }
+
+    // 5. GUARDAR
+    $mesa->update($dataToUpdate);
+
+    return response()->json([
+        'message' => 'Mesa actualizada correctamente',
+        'mesa' => $mesa
+    ], 200);
+}
+
 
     /**
      * Remove the specified resource from storage.

@@ -66,11 +66,11 @@
                         <div class="d-flex justify-content-between">
                             <h5 class="card-title fw-bold">Mesa N° {{ $mesa->number }}</h5>
                             <div>
-                                @if(Auth::user()->role === 'admin')
+                                
                                     <a href="{{ route('mesas.edit', $mesa->id) }}" class="text-secondary me-2">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
-                                @endif
+                                
                                 <span class="badge {{ $mesa->status === 'scrutinized' ? 'bg-success' : ($mesa->status === 'asigned' ? 'bg-warning text-dark' : 'bg-secondary') }}">
                                     {{ $mesa->status === 'scrutinized' ? 'Escrutada' : ($mesa->status === 'asigned' ? 'Asignada' : 'Pendiente') }}
                                 </span>

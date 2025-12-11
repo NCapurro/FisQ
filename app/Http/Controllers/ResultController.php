@@ -16,7 +16,7 @@ class ResultController extends Controller
      */
     public function create(Request $request, $mesaId)
     {
-        $mesa = Mesa::findOrFail($mesaId);
+        $mesa = Mesa::with('results')->findOrFail($mesaId);
 
         // SEGURIDAD: Solo admin o el fiscal asignado
         if ($request->user()->role !== 'admin' && $mesa->user_id !== $request->user()->id) {
@@ -46,6 +46,7 @@ class ResultController extends Controller
             'votes.*' => 'integer|min:0',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
+            'photo' => 'nullable|image|max:10240',
         ]);
 
         try {
@@ -53,11 +54,11 @@ class ResultController extends Controller
 
             foreach ($request->votes as $partyId => $voteCount) {
                 Result::updateOrCreate(
-                    [
+                    [       //array de búsqueda
                         'mesa_id' => $mesa->id,
                         'political_party_id' => $partyId
                     ],
-                    [
+                    [       //array de valores a insertar o actualizar
                         'votes' => $voteCount,
                         'user_id' => $request->user()->id,
                         'latitude' => $request->latitude,
@@ -66,8 +67,24 @@ class ResultController extends Controller
                 );
             }
 
+            // 2. LÓGICA DE LA FOTO DE ACTA ESCANEADA
+        $pathEnBaseDeDatos = $mesa->image_path; // Mantenemos la que tenía por si no sube nueva
+
+        if ($request->hasFile('photo')) {
+            // A. Recibimos el archivo binario desde el formulario
+            $archivo = $request->file('photo');
+
+            // B. Guardamos el archivo físico en el disco duro del servidor
+            // Laravel crea un nombre único (ej: "asd897a9s8d7.jpg") y lo pone en la carpeta "actas"
+            $rutaGuardada = $archivo->store('actas', 'public'); 
+
+            // C. Asignamos esa ruta string a nuestra variable
+            $pathEnBaseDeDatos = $rutaGuardada; 
+        }
+
+
             // Actualizar estado de la mesa
-            $mesa->update(['status' => 'scrutinized']);
+            $mesa->update(['status' => 'scrutinized','image_path' => $pathEnBaseDeDatos]);
 
             DB::commit();
 
