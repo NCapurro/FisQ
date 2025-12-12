@@ -7,6 +7,8 @@ use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\PoliticalPartyController;
 use App\Http\Controllers\MesaController;
 use App\Http\Controllers\ResultController;
+use App\Http\Controllers\GraphicController;
+use App\Http\Controllers\MapController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,6 +78,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/mesas/{id}/cargar-votos', [ResultController::class, 'create'])->name('results.create'); // La Boleta
     Route::post('/mesas/{id}/cargar-votos', [ResultController::class, 'store'])->name('results.store');   // Guardar Escrutinio
     Route::get('/mesas/{id}/resultados', [ResultController::class, 'show'])->name('results.show');        // Ver Finales
+
+    // --- GRÁFICOS DE RESULTADOS ---
+    Route::get('/resultados-graficos', [GraphicController::class, 'index'])->name('graphics.index');
+
+    // --- MAPA EN VIVO DE CARGAS ---
+    Route::get('/mapa-en-vivo', [MapController::class, 'index'])->name('maps.index');
 
     // --- GESTIÓN DE USUARIOS (SOLO ADMIN) ---
     // Usamos un middleware extra o simplemente confiamos en el Controller que ya tiene validación

@@ -2,12 +2,38 @@
 
 @section('content')
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fa-solid fa-school me-2"></i>Escuelas</h2>
-        <a href="{{ route('schools.create') }}" class="btn btn-primary">
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3">
+    <h2 class="mb-0"><i class="fa-solid fa-school me-2"></i>Escuelas</h2>
+
+    <div class="d-flex gap-2 align-items-center">
+        
+        <form method="GET" action="{{ route('schools.index') }}" id="filterForm">
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted">
+                    <i class="fa-solid fa-filter"></i>
+                </span>
+                <select name="department_id" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="">-- Todos los Deptos --</option>
+                    @foreach($departments as $dept)
+                        <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>
+                            {{ $dept->name }}
+                        </option>
+                    @endforeach
+                </select>
+                
+                @if(request('department_id'))
+                    <a href="{{ route('schools.index') }}" class="btn btn-outline-secondary" title="Quitar filtro">
+                        <i class="fa-solid fa-times"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
+
+        <a href="{{ route('schools.create') }}" class="btn btn-primary text-nowrap">
             <i class="fa-solid fa-plus me-1"></i> Nueva Escuela
         </a>
     </div>
+</div>
 
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">

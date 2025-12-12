@@ -31,6 +31,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('mesas.index') }}">Mesas</a>
                             </li>
+                            <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('graphics.index') }}">Resultados</a>
+                                </li>
                             @if(Auth::user()->role === 'admin')
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('schools.index') }}">Escuelas</a>
@@ -40,6 +43,9 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('users.index') }}">Usuarios</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('maps.index') }}">Mapa</a>
                                 </li>
                             @endif
                         @endauth

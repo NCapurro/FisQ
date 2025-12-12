@@ -17,11 +17,22 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        // Traemos usuarios con su departamento para mostrar "Juan Perez - Paraná"
-        // Opcional: Filtramos para no mostrar al admin a sí mismo si se desea
-        $users = User::with('department', 'mesas')->get();
+        // 1. Traemos los departamentos para llenar el select del filtro
+        $departments = Department::all();
 
-        return view('users.index', compact('users'));
+        // 2. Iniciamos la consulta base (con las relaciones necesarias)
+        $query = User::with(['department', 'mesas']);
+
+        // 3. Aplicamos el filtro si el usuario seleccionó un departamento
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->department_id);
+        }
+
+        // 4. Ejecutamos la consulta final
+        $users = $query->get();
+
+        // 5. Pasamos AMBAS variables a la vista
+        return view('users.index', compact('users', 'departments'));
     }
 
     /**
@@ -57,10 +68,7 @@ class UserController extends Controller
 
         $user = User::create($validated);
 
-        return response()->json([
-            'message' => 'Usuario creado exitosamente',
-            'user' => $user
-        ], 201);
+        return redirect()->route('users.index');
     }
 
     /**
@@ -100,10 +108,7 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        return response()->json([
-            'message' => 'Usuario actualizado correctamente',
-            'user' => $user
-        ], 200);
+        return redirect()->route('users.index');
     }
 
     /**
@@ -114,6 +119,6 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
 
-        return response()->json(['message' => 'Usuario eliminado'], 200);
+        return redirect()->route('users.index');
     }
 }

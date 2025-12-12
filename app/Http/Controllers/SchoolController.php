@@ -15,9 +15,22 @@ class SchoolController extends Controller
      */
     public function index(Request $request)
     {
-        //Devuelve todas las escuelas
-        $schools = School::with('department')->get();
-        return view('schools.index', compact('schools'));
+        // 1. Traemos los departamentos para el filtro
+        $departments = Department::all();
+
+        // 2. Iniciamos la consulta
+        $query = School::with('department');
+
+        // 3. Aplicamos el filtro si el usuario seleccionó algo
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->department_id);
+        }
+
+        // 4. Ejecutamos la consulta
+        $schools = $query->get();
+
+        // 5. Pasamos ambas variables a la vista
+        return view('schools.index', compact('schools', 'departments'));
     }
 
     /**

@@ -2,12 +2,39 @@
 
 @section('content')
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fa-solid fa-users-gear me-2"></i>Gestión de Usuarios</h2>
-        <a href="{{ route('users.create') }}" class="btn btn-outline-primary">
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3">
+    <h2 class="mb-0"><i class="fa-solid fa-users-gear me-2"></i>Gestión de Usuarios</h2>
+    
+    <div class="d-flex gap-2 align-items-center">
+        
+        <form method="GET" action="{{ route('users.index') }}" id="filterUserForm">
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted">
+                    <i class="fa-solid fa-filter"></i>
+                </span>
+                
+                <select name="department_id" class="form-select" onchange="document.getElementById('filterUserForm').submit()">
+                    <option value="">-- Todos los Deptos --</option>
+                    @foreach($departments as $dept)
+                        <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>
+                            {{ $dept->name }}
+                        </option>
+                    @endforeach
+                </select>
+
+                @if(request('department_id'))
+                    <a href="{{ route('users.index') }}" class="btn btn-outline-secondary" title="Ver todos">
+                        <i class="fa-solid fa-times"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
+
+        <a href="{{ route('users.create') }}" class="btn btn-primary text-nowrap">
             <i class="fa-solid fa-user-plus me-1"></i> Registrar Nuevo
         </a>
     </div>
+</div>
 
     <div class="accordion" id="accordionUsers">
         @forelse($users as $user)
