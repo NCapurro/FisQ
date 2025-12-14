@@ -5,15 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\HasBajaLogica;
 
 class Mesa extends Model
 {
+    use HasBajaLogica;
+    protected $cascades = ['results'];
+    protected $restore_parents = ['school'];
+
     protected $fillable = [
     'number',
     'school_id',
     'status',
     'user_id',
-    'image_path' ];
+    'image_path',
+    'is_active'
+    ];
     
     //Pertenece a una escuela
     public function school(): BelongsTo
@@ -32,5 +39,6 @@ class Mesa extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
 
 }

@@ -5,17 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-
+use App\Traits\HasBajaLogica;
 
 class Result extends Model
 {
+    use HasBajaLogica;
     protected $fillable = [
         'votes',
         'user_id',
         'mesa_id',
         'political_party_id',
         'latitude',
-        'longitude'
+        'longitude',
+        'is_active'
     ];
 
     // Pertenece a una mesa
@@ -44,5 +46,6 @@ class Result extends Model
             set: fn ($value) => max(0, (int) $value),
         );
     }
+
 
 }

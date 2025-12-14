@@ -34,6 +34,7 @@ return new class extends Migration
             // Metadata
             $table->rememberToken();
             $table->timestamps();
+            $table->boolean('is_active')->default(true);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

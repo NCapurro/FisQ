@@ -24,6 +24,7 @@ return new class extends Migration
             
             $table->unique(['mesa_id', 'political_party_id']);
             $table->timestamps();
+            $table->boolean('is_active')->default(true);
         });
     }
 

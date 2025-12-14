@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('address', 150)->nullable();
             $table->foreignId('department_id')->constrained()->onDelete('cascade');
             $table->timestamps();
+            $table->boolean('is_active')->default(true);
         });
     }
 

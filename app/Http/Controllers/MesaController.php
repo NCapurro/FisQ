@@ -26,6 +26,14 @@ class MesaController extends Controller
         // 'school.department' es vital para mostrar el nombre del depto en la tarjeta o filtro
         $query = Mesa::with(['school.department', 'fiscal']);
 
+        //2.5 Modo Papelera
+        if ($request->has('view_deleted')) {
+            $query->onlyTrashed();
+        } else {
+            // Comportamiento normal (El Global Scope 'active' ya actúa por defecto)
+        }
+
+
         // 3. Lógica según el Rol
         if ($user->role === 'admin') {
             // Si es Admin, revisamos si mandó el filtro por URL (?department_id=5)
@@ -166,9 +174,10 @@ class MesaController extends Controller
      */
     public function destroy(string $id)
     {
-        $mesa = Mesa::findOrFail($id);
-        $mesa->delete();
 
+        $mesa = Mesa::findOrFail($id);
+        $mesa->delete(); // Esto hará la baja lógica en cascada gracias al Trait
+        
         return response()->json(['message' => 'Mesa eliminada'], 200);
     }
 
@@ -207,7 +216,7 @@ class MesaController extends Controller
     public function batchCreate()
     {
         // Necesitamos los departamentos para el primer select
-        $departments = \App\Models\Department::all();
+        $departments = Department::all();
         return view('mesas.batch_create', compact('departments'));
     }
 
@@ -254,7 +263,7 @@ class MesaController extends Controller
     // Y necesitamos una API pequeña para obtener escuelas por departamento
     public function getSchoolsByDepartment($departmentId)
     {
-        $schools = \App\Models\School::where('department_id', $departmentId)->get();
+        $schools = School::where('department_id', $departmentId)->get();
         return response()->json($schools);
     }
 
@@ -267,7 +276,7 @@ class MesaController extends Controller
         $user = auth()->user();
         
         // Iniciamos la consulta de fiscales
-        $query = \App\Models\User::where('role', 'user');
+        $query = User::where('role', 'user');
 
         // Si NO es admin (es Fiscal), aplicamos el filtro de departamento
         if ($user->role !== 'admin') {
@@ -297,7 +306,7 @@ class MesaController extends Controller
         // --- VALIDACIÓN DE SEGURIDAD PARA FISCALES ---
         if ($currentUser->role !== 'admin') {
             // 1. Verificar que el destino sea del mismo departamento
-            $targetUser = \App\Models\User::find($targetUserId);
+            $targetUser = User::find($targetUserId);
             if ($targetUser->department_id !== $currentUser->department_id) {
                 return response()->json(['message' => 'No puedes asignar mesas a fiscales de otro departamento.'], 403);
             }
@@ -334,4 +343,14 @@ class MesaController extends Controller
         ], 200);
     }
 
+
+    public function restore($id)
+    {
+        $mesa = Mesa::withoutGlobalScope('active')->findOrFail($id);
+
+        $mesa->restore();
+
+        return redirect()->route('mesas.index', ['view_deleted' => 1])
+                         ->with('success', 'Mesa restaurada correctamente.');
+    }
 }

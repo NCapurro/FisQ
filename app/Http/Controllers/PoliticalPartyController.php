@@ -14,7 +14,13 @@ class PoliticalPartyController extends Controller
     public function index()
     {
         //Devuelve todos los partidos políticos
-        $parties = PoliticalParty::all();
+        $parties = PoliticalParty::orderBy('id', 'desc')->get();
+
+        //modo papelera
+        if (request()->has('view_deleted')) {
+            $parties = PoliticalParty::onlyTrashed()->orderBy('id', 'desc')->get();
+        }
+
     
         return view('political_parties.index', compact('parties'));
     
@@ -93,9 +99,21 @@ class PoliticalPartyController extends Controller
     public function destroy(string $id)
     {
         $party = PoliticalParty::findOrFail($id);
-        $party->delete();
-
+        $party->delete(); // Esto hará la baja lógica en cascada gracias al Trait
+        
+        
         return response()->json([
             'message' => 'Partido político eliminado con éxito'], 200);
+    }
+
+    //restaurar partido
+    public function restore($id)
+    {
+        $party = PoliticalParty::withoutGlobalScope('active')->findOrFail($id);
+
+        $party->restore();
+
+        return redirect()->route('political-parties.index', ['view_deleted' => 1])
+                         ->with('success', 'Partido político restaurado correctamente.');
     }
 }

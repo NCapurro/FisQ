@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name', 50)->unique();
             $table->foreignId('province_id')->constrained()->onDelete('cascade');
             $table->timestamps();
+            $table->boolean('is_active')->default(true);
         });
     }
 

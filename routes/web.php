@@ -56,12 +56,19 @@ Route::middleware('auth')->group(function () {
     
     Route::resource('schools', SchoolController::class);
     Route::resource('political-parties', PoliticalPartyController::class);
+    Route::post('/political-parties/{id}/restore', [PoliticalPartyController::class, 'restore'])->name('political-parties.restore');
     
+
+    //restaurar escuela
+    Route::post('/schools/{id}/restore', [SchoolController::class, 'restore'])->name('schools.restore');
 
     // creacion masiva de mesas
     Route::get('/mesas/creacion-masiva', [MesaController::class, 'batchCreate'])->name('mesas.batch_create');
     Route::post('/mesas/creacion-masiva', [MesaController::class, 'batchStore'])->name('mesas.batch_store');
     Route::get('/api/schools/{department_id}', [MesaController::class, 'getSchoolsByDepartment']); // API interna
+    Route::post('/mesas/{id}/restore', [MesaController::class, 'restore'])->name('mesas.restore');
+
+
 
     // Asignación Masiva
     Route::get('/mesas/asignacion-masiva', [MesaController::class, 'batchAssign'])->name('mesas.batch_assign');
@@ -78,6 +85,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/mesas/{id}/cargar-votos', [ResultController::class, 'create'])->name('results.create'); // La Boleta
     Route::post('/mesas/{id}/cargar-votos', [ResultController::class, 'store'])->name('results.store');   // Guardar Escrutinio
     Route::get('/mesas/{id}/resultados', [ResultController::class, 'show'])->name('results.show');        // Ver Finales
+  
 
     // --- GRÁFICOS DE RESULTADOS ---
     Route::get('/resultados-graficos', [GraphicController::class, 'index'])->name('graphics.index');
@@ -96,4 +104,5 @@ Route::middleware('auth')->group(function () {
     // Por ahora, lo dejamos abierto y que el Controller rechace si no es admin:
     Route::resource('users', UserController::class);
 
+    Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
 });

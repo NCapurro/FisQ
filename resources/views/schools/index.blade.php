@@ -32,6 +32,17 @@
         <a href="{{ route('schools.create') }}" class="btn btn-primary text-nowrap">
             <i class="fa-solid fa-plus me-1"></i> Nueva Escuela
         </a>
+        <div class="d-flex gap-2">
+    @if(request('view_deleted'))
+        <a href="{{ route('schools.index') }}" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver a Activas
+        </a>
+    @else
+        <a href="{{ route('schools.index', ['view_deleted' => 1]) }}" class="btn btn-outline-danger">
+            <i class="fa-solid fa-trash-can me-1"></i> Papelera
+        </a>
+    @endif
+    </div>
     </div>
 </div>
 
@@ -59,6 +70,15 @@
                                     {{ $school->department->name }}
                                 </span>
                             </td>
+                            @if(request('view_deleted'))
+                            <td class="text-end">
+                                <form method="POST" action="{{ route('schools.restore', $school->id) }}" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="fa-solid fa-recycle"></i> Restaurar
+                                    </button>
+                                </form>
+                            @else
                             <td class="text-end">
                                 <div class="d-flex gap-2 justify-content-end">
                                     <a href="{{ route('schools.edit', $school->id) }}" class="btn btn-sm btn-outline-primary">
@@ -69,6 +89,7 @@
                                     </button>
                                 </div>
                             </td>
+                            @endif
                         </tr>
                     @empty
                         <tr>

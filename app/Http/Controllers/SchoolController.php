@@ -21,6 +21,13 @@ class SchoolController extends Controller
         // 2. Iniciamos la consulta
         $query = School::with('department');
 
+        //2.5 Modo Papelera
+        if ($request->has('view_deleted')) {
+            $query->onlyTrashed();
+        } else {
+            // Comportamiento normal (El Global Scope 'active' ya actúa por defecto)
+        }
+
         // 3. Aplicamos el filtro si el usuario seleccionó algo
         if ($request->filled('department_id')) {
             $query->where('department_id', $request->department_id);
@@ -113,8 +120,20 @@ class SchoolController extends Controller
         
         // Al borrar la escuela, se borran las mesas en cascada 
         
-        $school->delete();
-
+        $school->delete(); // Esto hará la baja lógica en cascada gracias al Trait
+        
         return response()->json(['message' => 'Escuela eliminada'], 200);
+    }
+
+    //Restaurar escuela
+    public function restore($id)
+    {
+        // Buscamos INCLUSO entre los eliminados
+        $school = School::withoutGlobalScope('active')->findOrFail($id);
+        
+        $school->restore(); // Método del Trait
+
+        return redirect()->route('schools.index', ['view_deleted' => 1])
+                         ->with('success', 'Escuela restaurada correctamente.');
     }
 }

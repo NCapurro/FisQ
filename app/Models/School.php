@@ -7,10 +7,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Str;
+use App\Traits\HasBajaLogica;
 
 class School extends Model
 {
-    protected $fillable = ['name', 'department_id', 'address'];
+    use HasBajaLogica;
+
+    // Definimos la cascada: Cuando borre Escuela, borrar 'mesas', esto hará la baja lógica en cascada
+    protected $cascades = ['mesas'];
+    protected $restore_parents = ['department'];
+
+    protected $fillable = ['name', 'department_id', 'address', 'is_active'];
 
 
     // Pertenece a un departamento

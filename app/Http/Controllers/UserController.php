@@ -17,11 +17,21 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+
+
         // 1. Traemos los departamentos para llenar el select del filtro
         $departments = Department::all();
 
         // 2. Iniciamos la consulta base (con las relaciones necesarias)
         $query = User::with(['department', 'mesas']);
+
+        // 2.5 Lógica del "Modo Papelera"
+        if ($request->has('view_deleted')) {
+            // Usamos el scope del Trait 
+            $query->onlyTrashed();
+        } else {
+            // Comportamiento normal (El Global Scope 'active' ya actúa por defecto)
+        }
 
         // 3. Aplicamos el filtro si el usuario seleccionó un departamento
         if ($request->filled('department_id')) {
@@ -117,8 +127,21 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         $user = User::findOrFail($id);
-        $user->delete();
+        $user->delete(); // Esto hará la baja lógica gracias al Trait
 
         return redirect()->route('users.index');
     }
+
+    public function restore($id)
+    {
+        // Buscamos INCLUSO entre los eliminados
+        $user = User::withoutGlobalScope('active')->findOrFail($id);
+        
+        $user->restore(); // Método del Trait
+
+        return redirect()->route('users.index', ['view_deleted' => 1])
+                         ->with('success', 'Usuario restaurado correctamente.');
+    }
+
+
 }

@@ -33,8 +33,25 @@
         <a href="{{ route('users.create') }}" class="btn btn-primary text-nowrap">
             <i class="fa-solid fa-user-plus me-1"></i> Registrar Nuevo
         </a>
+        <div class="d-flex gap-2">
+    @if(request('view_deleted'))
+        <a href="{{ route('users.index') }}" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver a Activos
+        </a>
+    @else
+        <a href="{{ route('users.index', ['view_deleted' => 1]) }}" class="btn btn-outline-danger">
+            <i class="fa-solid fa-trash-can me-1"></i> Papelera
+        </a>
+    @endif
+    
     </div>
+    </div>
+
+    
 </div>
+
+
+
 
     <div class="accordion" id="accordionUsers">
         @forelse($users as $user)
@@ -81,6 +98,7 @@
                                                 Mesa N° {{ $mesa->number }}
                                                 <small class="text-muted">({{ $mesa->school->name }})</small>
                                             </li>
+                                            
                                         @endforeach
                                     </ul>
                                 @else
@@ -91,43 +109,62 @@
                             <div class="col-md-4 d-flex flex-column justify-content-center gap-2">
                                 <h6 class="fw-bold text-primary">Acciones</h6>
 
-                                <a href="{{ route('mesas.index') }}" class="btn btn-sm btn-outline-primary text-start">
-                                    <i class="fa-solid fa-check-to-slot me-2"></i> Ir a Asignar Mesas
-                                </a>
-
-                                <form action="{{ route('users.update', $user->id) }}" method="POST">
-                                    @csrf
-                                    @method('PUT')
+                                {{-- LÓGICA DE PAPELERA VS ACTIVOS --}}
+                                @if(request('view_deleted'))
                                     
-                                    @if($user->role === 'user')
-                                        <input type="hidden" name="role" value="admin">
-                                        <button type="submit" class="btn btn-sm btn-warning w-100 text-start">
-                                            <i class="fa-solid fa-crown me-2"></i> Ascender a Admin
-                                        </button>
-                                    @else
-                                        @if(Auth::id() !== $user->id)
-                                            <input type="hidden" name="role" value="user">
-                                            <button type="submit" class="btn btn-sm btn-outline-dark w-100 text-start">
-                                                <i class="fa-solid fa-user-shield me-2"></i> Volver a Fiscal
-                                            </button>
-                                        @endif
-                                    @endif
-                                </form>
-
-                                @if(Auth::id() !== $user->id)
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar a este usuario? Se perderán sus asignaciones.');">
+                                    {{-- CASO 1: ESTAMOS EN LA PAPELERA (Solo botón Restaurar) --}}
+                                    <form action="{{ route('users.restore', $user->id) }}" method="POST">
                                         @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger w-100 text-start">
-                                            <i class="fa-solid fa-trash me-2"></i> Eliminar Usuario
+                                        <button type="submit" class="btn btn-success w-100 text-start text-white">
+                                            <i class="fa-solid fa-trash-arrow-up me-2"></i> Restaurar Usuario
                                         </button>
                                     </form>
+
+                                @else
+
+                                    {{-- CASO 2: USUARIO ACTIVO (Botones normales) --}}
+                                    
+                                    <a href="{{ route('mesas.index') }}" class="btn btn-sm btn-outline-primary text-start">
+                                        <i class="fa-solid fa-check-to-slot me-2"></i> Ir a Asignar Mesas
+                                    </a>
+
+                                    <form action="{{ route('users.update', $user->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        
+                                        @if($user->role === 'user')
+                                            <input type="hidden" name="role" value="admin">
+                                            <button type="submit" class="btn btn-sm btn-warning w-100 text-start">
+                                                <i class="fa-solid fa-crown me-2"></i> Ascender a Admin
+                                            </button>
+                                        @else
+                                            @if(Auth::id() !== $user->id)
+                                                <input type="hidden" name="role" value="user">
+                                                <button type="submit" class="btn btn-sm btn-outline-dark w-100 text-start">
+                                                    <i class="fa-solid fa-user-shield me-2"></i> Volver a Fiscal
+                                                </button>
+                                            @endif
+                                        @endif
+                                    </form>
+
+                                    @if(Auth::id() !== $user->id)
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar a este usuario? Se perderán sus asignaciones.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger w-100 text-start">
+                                                <i class="fa-solid fa-trash me-2"></i> Eliminar Usuario
+                                            </button>
+                                        </form>
+                                    @endif
+
                                 @endif
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            
         @empty
             <div class="alert alert-info">No hay usuarios registrados.</div>
         @endforelse

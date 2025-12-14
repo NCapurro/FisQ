@@ -6,7 +6,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasBajaLogica;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Str;
 
 
 
@@ -15,6 +18,8 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+
+    use HasBajaLogica;
 
     /**
      * The attributes that are mass assignable.
@@ -31,6 +36,7 @@ class User extends Authenticatable
         'address',
         'department_id',
         'role',
+        'is_active'
     ];
 
     //El rol se asigna manualmente para definir admins
@@ -107,6 +113,27 @@ class User extends Authenticatable
         );
     }
 
+   protected static function booted()
+    {
+        static::updated(function ($user) {
+            
+            // Verificamos si el usuario fue desactivado
+            if ($user->wasChanged('is_active') && $user->is_active == false) {
+                
+                // ACTUALIZACIÓN CONDICIONAL:
+                // 1. Llamamos a las mesas del usuario.
+                // 2. FILTRO CLAVE: Solo seleccionamos las que están en estado 'asigned'.
+                // 3. A esas (y solo a esas) les quitamos el dueño y reseteamos el estado.
+                
+                $user->mesas()
+                     ->where('status', 'asigned') // <--- ESTO PROTEGE LAS ESCRUTADAS
+                     ->update([
+                        'user_id' => null,
+                        'status' => 'created' 
+                     ]);
+            }
+        });
+    }
 
 
 }

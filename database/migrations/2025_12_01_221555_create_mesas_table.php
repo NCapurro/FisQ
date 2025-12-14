@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('image_path')->nullable();
             $table->timestamps();
+            $table->boolean('is_active')->default(true);
 
 
         });

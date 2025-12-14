@@ -59,6 +59,26 @@ class DatabaseSeeder extends Seeder
         // 2. PARTIDOS POLÍTICOS
         // -------------------------------------------------------
         PoliticalParty::create([
+            'name' => 'Impugnado',
+            'abbreviation' => 'VIMP',
+            'color_hex' => '#727272', 
+        ]);
+
+
+         PoliticalParty::create([
+            'name' => 'Nulo',
+            'abbreviation' => 'VN',
+            'color_hex' => '#1A1A1A', 
+        ]);
+
+        PoliticalParty::create([
+            'name' => 'Blanco',
+            'abbreviation' => 'VB',
+            'color_hex' => '#D3D3D3', 
+        ]);
+
+                        
+        PoliticalParty::create([
             'name' => 'Unión por la Patria',
             'abbreviation' => 'UXP',
             'color_hex' => '#0099FF', // Celeste

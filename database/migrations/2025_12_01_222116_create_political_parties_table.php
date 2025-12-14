@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name', 50)->unique();
             $table->string('abbreviation', 10)->unique();
             $table->string('color_hex',7);
-            
             $table->timestamps();
+            $table->boolean('is_active')->default(true);
         });
     }
 

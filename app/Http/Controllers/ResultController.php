@@ -23,7 +23,7 @@ class ResultController extends Controller
             abort(403, 'No tienes permiso para cargar resultados en esta mesa.');
         }
 
-        $parties = PoliticalParty::all();
+        $parties = PoliticalParty::orderBy('id', 'desc')->get();
 
         return view('results.create', compact('mesa', 'parties'));
     }
@@ -105,5 +105,26 @@ class ResultController extends Controller
         $mesa = Mesa::with(['results.politicalParty', 'school', 'fiscal'])->findOrFail($id);
 
         return view('results.show', compact('mesa'));
+    }
+
+    //Metodo para eliminar un resultado (baja logica)
+    public function destroy(string $id)
+    {
+        $result = Result::findOrFail($id);
+        $result->delete(); // Esto hará la baja lógica gracias al Trait
+
+        return response()->json(['message' => 'Resultado eliminado'], 200);
+    }
+
+    //Restaurar resultado
+    public function restore($id)
+    {
+        // Buscamos INCLUSO entre los eliminados
+        $result = Result::withoutGlobalScope('active')->findOrFail($id);
+        
+        $result->restore(); // Método del Trait
+
+        return redirect()->route('mesas.show', $result->mesa_id)
+                         ->with('success', 'Resultado restaurado correctamente.');
     }
 }

@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Str;
+use App\Traits\HasBajaLogica;
 
 class PoliticalParty extends Model
 {
-    protected $fillable = ['name', 'abbreviation', 'color_hex'];
+    use HasBajaLogica;
+    protected $fillable = ['name', 'abbreviation', 'color_hex', 'is_active'];
+    protected $cascades = ['results'];
 
     // Tiene muchos resultados
     public function results()
@@ -48,6 +51,7 @@ class PoliticalParty extends Model
         );
     }
 
+  
 
     
 }
