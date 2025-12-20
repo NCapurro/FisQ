@@ -83,6 +83,8 @@
         </div>
     </div>
 </div>
+@endsection
+@push('scripts')
 
 <script>
     function crearUsuario() {
@@ -106,4 +108,4 @@
             });
     }
 </script>
-@endsection
+@endpush

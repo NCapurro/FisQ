@@ -43,6 +43,8 @@
         </div>
     </div>
 </div>
+@endsection 
+@push('scripts')
 
 <script>
     function guardarMesa() {
@@ -65,4 +67,4 @@
             });
     }
 </script>
-@endsection
+@endpush

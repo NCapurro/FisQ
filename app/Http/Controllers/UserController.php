@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Department; // Necesario para el selector de zonas
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Models\ActivityLog;
 
 class UserController extends Controller
 {
@@ -129,6 +130,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete(); // Esto hará la baja lógica gracias al Trait
 
+
         return redirect()->route('users.index');
     }
 
@@ -139,6 +141,7 @@ class UserController extends Controller
         
         $user->restore(); // Método del Trait
 
+    
         return redirect()->route('users.index', ['view_deleted' => 1])
                          ->with('success', 'Usuario restaurado correctamente.');
     }

@@ -75,4 +75,22 @@ trait HasBajaLogica
         return true;
     });
     }
+
+    public function restoreWithChildren()
+    {
+        return DB::transaction(function () {
+            $this->restore();
+
+            // Restaurar relaciones en cascada
+            if (property_exists($this, 'cascades')) {
+                foreach ($this->cascades as $relation) {
+                    $this->{$relation}()->onlyTrashed()->get()->each(function ($child) {
+                        $child->restoreWithChildren();
+                    });
+                }
+            }
+
+            return true;
+        });
+    }
 }

@@ -16,7 +16,7 @@ class GraphicController extends Controller
 
         // 1. Definimos cuáles son los partidos "Válidos" (Candidatos)
         // Excluimos Blanco y Nulo para el cálculo base
-        $validParties = PoliticalParty::whereNotIn('name', ['Blanco', 'Nulo'])->get();
+        $validParties = PoliticalParty::whereNotIn('name', ['Blanco', 'Nulo', 'Impugnado'])->get();
 
         // 2. Calculamos el TOTAL DE VOTOS VÁLIDOS (El denominador)
         // Hacemos una consulta para sumar todo lo que sea de estos partidos

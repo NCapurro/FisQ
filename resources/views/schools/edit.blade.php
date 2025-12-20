@@ -52,7 +52,8 @@
         </div>
     </div>
 </div>
-
+@endsection
+@push('scripts')
 <script>
     function actualizarEscuela() {
         // Obtenemos el ID desde Blade
@@ -78,4 +79,4 @@
             });
     }
 </script>
-@endsection
+@endpush

@@ -42,6 +42,8 @@
         </div>
     </div>
 </div>
+@endsection
+@push('scripts')
 
 <script>
     function guardarPartido() {
@@ -66,4 +68,4 @@
             });
     }
 </script>
-@endsection
+@endpush

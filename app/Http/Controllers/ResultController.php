@@ -8,6 +8,7 @@ use App\Models\Result;
 use App\Models\Mesa;
 use App\Models\PoliticalParty;
 use Illuminate\Support\Facades\DB;
+use App\Models\ActivityLog;
 
 class ResultController extends Controller
 {
@@ -51,6 +52,15 @@ class ResultController extends Controller
 
         try {
             DB::beginTransaction();
+            // --- LÓGICA DE AUDITORÍA SIMPLIFICADA ---
+            // Si el usuario que envía la petición NO es el fiscal asignado a la mesa
+            if ($request->user()->id !== $mesa->user_id) {
+                ActivityLog::registrar(
+                    'intervencion_externa', 
+                    'Escrutinio', 
+                    "Un agente externo ID: {$request->user()->id} cargó/modificó resultados en la Mesa N° {$mesa->number} - ID: {$mesa->id}"
+                );
+            }
 
             foreach ($request->votes as $partyId => $voteCount) {
                 Result::updateOrCreate(
@@ -100,18 +110,33 @@ class ResultController extends Controller
      * Ver los resultados finales de una mesa.
      */
     public function show(string $id)
-    {
-        // CORREGIDO: Usamos $id que viene por parámetro
-        $mesa = Mesa::with(['results.politicalParty', 'school', 'fiscal'])->findOrFail($id);
+{
+    $mesa = Mesa::with([
+        // Aquí ordenamos la relación 'results' directamente desde SQL
+        'results' => function ($query) {
+            $query->orderBy('political_party_id', 'desc');
+        }, 
+        'results.politicalParty', 
+        'school', 
+        'fiscal'
+    ])->findOrFail($id);
 
-        return view('results.show', compact('mesa'));
-    }
+    return view('results.show', compact('mesa'));
+}
 
     //Metodo para eliminar un resultado (baja logica)
     public function destroy(string $id)
     {
         $result = Result::findOrFail($id);
         $result->delete(); // Esto hará la baja lógica gracias al Trait
+
+        // Log: ELIMINAR
+        ActivityLog::registrar(
+            'eliminar', 
+            'Resultados', 
+            "Eliminó el Resultado ID: {$result->id} de la Mesa ID: {$result->mesa_id}"
+        );
+
 
         return response()->json(['message' => 'Resultado eliminado'], 200);
     }
@@ -123,6 +148,12 @@ class ResultController extends Controller
         $result = Result::withoutGlobalScope('active')->findOrFail($id);
         
         $result->restore(); // Método del Trait
+        //Log: RESTAURAR
+        ActivityLog::registrar(
+            'restaurar', 
+            'Resultados', 
+            "Restauró el Resultado ID: {$result->id} de la Mesa ID: {$result->mesa_id}"
+        );
 
         return redirect()->route('mesas.show', $result->mesa_id)
                          ->with('success', 'Resultado restaurado correctamente.');

@@ -9,6 +9,7 @@ use App\Http\Controllers\MesaController;
 use App\Http\Controllers\ResultController;
 use App\Http\Controllers\GraphicController;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\ActivityLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -105,4 +106,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('users', UserController::class);
 
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
+
+   Route::get('/auditoria', [ActivityLogController::class, 'index'])
+    ->name('logs.index')
+    ->middleware('auth');
+
 });

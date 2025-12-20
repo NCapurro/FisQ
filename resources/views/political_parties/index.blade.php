@@ -79,6 +79,8 @@
         </div>
     </div>
 </div>
+@endsection
+@push('scripts')
 
 <script>
     function eliminarPartido(id, nombre) {
@@ -104,4 +106,4 @@
     }
 </script>
 
-@endsection
+@endpush

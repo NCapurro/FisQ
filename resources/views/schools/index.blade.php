@@ -105,7 +105,8 @@
     </div>
 </div>
 
-
+@endsection
+@push('scripts')
 
 <script>
     function eliminarEscuela(id, nombre) {
@@ -130,4 +131,4 @@
             });
     }
 </script>
-@endsection
+@endpush

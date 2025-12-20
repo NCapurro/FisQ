@@ -27,7 +27,8 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-
+@endsection
+@push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         
@@ -86,4 +87,4 @@
         }
     });
 </script>
-@endsection
+@endpush

@@ -62,6 +62,8 @@
         </div>
     </div>
 </div>
+@endsection
+@push('scripts')
 
 <script>
     function asignarMasivo() {
@@ -99,4 +101,4 @@
             });
     }
 </script>
-@endsection
+@endpush

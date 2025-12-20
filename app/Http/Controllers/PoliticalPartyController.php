@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PoliticalParty;
+use App\Models\ActivityLog;
 
 class PoliticalPartyController extends Controller
 {
@@ -46,7 +47,8 @@ class PoliticalPartyController extends Controller
         ]);
         
         $party = PoliticalParty::create($validated);
-    
+
+
         //Devolver JSON
         return response()->json([
             'message' => 'Partido político creado con éxito',
@@ -88,6 +90,7 @@ class PoliticalPartyController extends Controller
 
         $party->update($validated);
 
+
         return response()->json([
             'message' => 'Partido político actualizado con éxito',
             'party' => $party], 200);
@@ -101,7 +104,7 @@ class PoliticalPartyController extends Controller
         $party = PoliticalParty::findOrFail($id);
         $party->delete(); // Esto hará la baja lógica en cascada gracias al Trait
         
-        
+
         return response()->json([
             'message' => 'Partido político eliminado con éxito'], 200);
     }
@@ -111,7 +114,8 @@ class PoliticalPartyController extends Controller
     {
         $party = PoliticalParty::withoutGlobalScope('active')->findOrFail($id);
 
-        $party->restore();
+        $party->restoreWithChildren(); // Método del Trait para restaurar resultados tambien
+       
 
         return redirect()->route('political-parties.index', ['view_deleted' => 1])
                          ->with('success', 'Partido político restaurado correctamente.');

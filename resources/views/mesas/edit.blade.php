@@ -91,8 +91,9 @@
         </div>
     </div>
 </div>
+@endsection
+@push('scripts')
 
-{{-- SCRIPTS (Igual que antes, pero asegurándonos que estén dentro del section) --}}
 <script>
     const mesaId = "{{ $mesa->id }}";
 
@@ -124,4 +125,4 @@
     }
 </script>
 
-@endsection {{-- 3. ESTA LINEA CIERRA EL CONTENIDO --}}
+@endpush

@@ -47,6 +47,8 @@
         </div>
     </div>
 </div>
+@endsection
+@push('scripts')
 
 <script>
     function actualizarPartido() {
@@ -74,4 +76,4 @@
             });
     }
 </script>
-@endsection
+@endpush

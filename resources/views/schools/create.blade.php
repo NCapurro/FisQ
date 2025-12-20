@@ -46,6 +46,8 @@
         </div>
     </div>
 </div>
+@endsection
+@push('scripts')
 
 <script>
     function guardarEscuela() {
@@ -69,4 +71,4 @@
             });
     }
 </script>
-@endsection
+@endpush

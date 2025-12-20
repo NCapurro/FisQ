@@ -49,7 +49,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
+@endsection
+@push('scripts')
 <script>
     // Variable global para controlar la instancia del gráfico y evitar duplicados
     let myChartInstance = null;
@@ -128,4 +129,4 @@
         });
     }
 </script>
-@endsection
+@endpush

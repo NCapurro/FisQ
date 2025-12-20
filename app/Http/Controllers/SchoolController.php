@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\School;
 use App\Models\Department;
 use App\Models\Mesa;
+use App\Models\ActivityLog;
 
 class SchoolController extends Controller
 {
@@ -121,7 +122,7 @@ class SchoolController extends Controller
         // Al borrar la escuela, se borran las mesas en cascada 
         
         $school->delete(); // Esto hará la baja lógica en cascada gracias al Trait
-        
+
         return response()->json(['message' => 'Escuela eliminada'], 200);
     }
 
@@ -132,6 +133,7 @@ class SchoolController extends Controller
         $school = School::withoutGlobalScope('active')->findOrFail($id);
         
         $school->restore(); // Método del Trait
+
 
         return redirect()->route('schools.index', ['view_deleted' => 1])
                          ->with('success', 'Escuela restaurada correctamente.');

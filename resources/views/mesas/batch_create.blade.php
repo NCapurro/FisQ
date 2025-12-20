@@ -62,6 +62,9 @@
     </div>
 </div>
 
+@endsection
+@push('scripts')
+
 <script>
     // Función para llenar el segundo select
     function cargarEscuelas() {
@@ -131,4 +134,4 @@
             });
     }
 </script>
-@endsection
+@endpush

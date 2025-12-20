@@ -8,6 +8,7 @@ use App\Models\Mesa;
 use App\Models\School;
 use App\Models\User;
 use App\Models\Department;
+use App\Models\ActivityLog;
 
 
 class MesaController extends Controller
@@ -77,6 +78,7 @@ class MesaController extends Controller
 
         // Por defecto nace con status 'created' (definido en la migración)
         $mesa = Mesa::create($validated);
+
 
         return response()->json([
             'message' => 'Mesa creada exitosamente',
@@ -162,11 +164,12 @@ class MesaController extends Controller
     // 5. GUARDAR
     $mesa->update($dataToUpdate);
 
+    // 6. RESPUESTA
     return response()->json([
         'message' => 'Mesa actualizada correctamente',
         'mesa' => $mesa
     ], 200);
-}
+    }
 
 
     /**
@@ -183,7 +186,7 @@ class MesaController extends Controller
 
     /**
      * METODO ESPECIAL: Subir Foto del Acta
-     * Se llamará desde Vue con FormData
+     * 
      */
     public function uploadActa(Request $request, string $id)
     {
@@ -202,8 +205,8 @@ class MesaController extends Controller
         $mesa->update([
          'image_path' => $path,
          'status' => 'scrutinized'
-            ]);
-
+            ]);            
+        
         return response()->json([
             'message' => 'Acta subida correctamente',
             'path' => $path
@@ -252,10 +255,33 @@ class MesaController extends Controller
             }
         }
 
+        //Logs 
+        if ($createdCount > 0) {
+            ActivityLog::registrar(
+                'crear_masivo', 
+                'Mesas', 
+                "Creación masiva: Se generaron $createdCount mesas (Desde la $from hasta la $to) en la escuela ID: $schoolId"
+            );
+        }
+
+        if (count($errors) > 0) {
+            // Opcional: Log de advertencia si hubo duplicados
+             ActivityLog::registrar(
+                'error', 
+                'Mesas', 
+                "Creación masiva: Se omitieron " . count($errors) . " mesas porque ya existían."
+            );
+        }
+
+
+
         $message = "Se crearon $createdCount mesas exitosamente.";
         if (count($errors) > 0) {
             $message .= " (Las mesas " . implode(', ', $errors) . " ya existían y se omitieron).";
         }
+
+
+
 
         return response()->json(['message' => $message], 200);
     }
@@ -330,6 +356,15 @@ class MesaController extends Controller
             'user_id' => $targetUserId,
             'status' => 'asigned'
         ]);
+
+        // Logs
+         if ($affected > 0) {
+        ActivityLog::registrar(
+            'asignar_masivo', 
+            'Mesas', 
+            "Asignación Masiva: Se transfirieron $affected mesas al usuario ID $targetUserId"
+        );
+    }
 
         if ($affected === 0) {
             $msg = ($currentUser->role === 'admin') 
