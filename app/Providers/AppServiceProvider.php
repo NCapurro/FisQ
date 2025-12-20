@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator;
 
 use App\Observers\UserObserver;
 use App\Observers\SchoolObserver;
@@ -36,5 +37,9 @@ class AppServiceProvider extends ServiceProvider
     School::observe(SchoolObserver::class);
     User::observe(UserObserver::class);
     PoliticalParty::observe(PoliticalPartyObserver::class);
+
+
+    // Configurar paginación para Bootstrap 5
+    Paginator::useBootstrapFive();
     }
 }

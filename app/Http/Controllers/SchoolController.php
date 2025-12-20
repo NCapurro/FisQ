@@ -16,28 +16,28 @@ class SchoolController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. Traemos los departamentos para el filtro
         $departments = Department::all();
 
-        // 2. Iniciamos la consulta
-        $query = School::with('department');
+        $query = School::with('department')->orderBy('name', 'asc');
 
-        //2.5 Modo Papelera
+        // 1. Modo Papelera
         if ($request->has('view_deleted')) {
             $query->onlyTrashed();
-        } else {
-            // Comportamiento normal (El Global Scope 'active' ya actúa por defecto)
         }
 
-        // 3. Aplicamos el filtro si el usuario seleccionó algo
+        // 2. Filtro por Departamento
         if ($request->filled('department_id')) {
             $query->where('department_id', $request->department_id);
         }
 
-        // 4. Ejecutamos la consulta
-        $schools = $query->get();
+        // 3. NUEVO: Buscador por Nombre (Muy útil para escuelas)
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
 
-        // 5. Pasamos ambas variables a la vista
+        // 4. CAMBIO CLAVE: Usar paginate
+        $schools = $query->paginate(10); 
+
         return view('schools.index', compact('schools', 'departments'));
     }
 

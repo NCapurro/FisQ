@@ -111,4 +111,7 @@ Route::middleware('auth')->group(function () {
     ->name('logs.index')
     ->middleware('auth');
 
+    // --- PÁGINA DE AYUDA ---
+    Route::get('/ayuda', [App\Http\Controllers\HelpController::class, 'index'])->name('help.index');
+
 });

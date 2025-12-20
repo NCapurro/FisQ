@@ -18,31 +18,40 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-
-
-        // 1. Traemos los departamentos para llenar el select del filtro
         $departments = Department::all();
 
-        // 2. Iniciamos la consulta base (con las relaciones necesarias)
-        $query = User::with(['department', 'mesas']);
+        // Ordenamos por Apellido para que sea una lista alfabética
+        $query = User::with(['department', 'mesas'])
+                     ->orderBy('lastname', 'asc');
 
-        // 2.5 Lógica del "Modo Papelera"
+        // 1. MODO PAPELERA
         if ($request->has('view_deleted')) {
-            // Usamos el scope del Trait 
             $query->onlyTrashed();
-        } else {
-            // Comportamiento normal (El Global Scope 'active' ya actúa por defecto)
         }
 
-        // 3. Aplicamos el filtro si el usuario seleccionó un departamento
+        // 2. FILTRO POR DEPARTAMENTO
         if ($request->filled('department_id')) {
             $query->where('department_id', $request->department_id);
         }
 
-        // 4. Ejecutamos la consulta final
-        $users = $query->get();
+        // 3. FILTRO POR ROL (Nuevo)
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
 
-        // 5. Pasamos AMBAS variables a la vista
+        // 4. BUSCADOR (DNI, Nombre o Apellido)
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $term = $request->search;
+                $q->where('dni', 'like', "%{$term}%")
+                  ->orWhere('name', 'like', "%{$term}%")
+                  ->orWhere('lastname', 'like', "%{$term}%");
+            });
+        }
+
+        // 5. PAGINACIÓN
+        $users = $query->paginate(15);
+
         return view('users.index', compact('users', 'departments'));
     }
 

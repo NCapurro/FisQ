@@ -20,40 +20,61 @@ class MesaController extends Controller
     {
         $user = $request->user();
 
-        // 1. Traemos los departamentos para el select del filtro (solo Admin lo usa, pero no daña traerlo)
+        // 1. DATOS PARA FILTROS (UI)
         $departments = Department::all();
+        $schools = [];
 
-        // 2. Iniciamos la consulta base cargando las relaciones necesarias
-        // 'school.department' es vital para mostrar el nombre del depto en la tarjeta o filtro
-        $query = Mesa::with(['school.department', 'fiscal']);
-
-        //2.5 Modo Papelera
-        if ($request->has('view_deleted')) {
-            $query->onlyTrashed();
+        // Lógica de carga de Escuelas (Cascada o Todas)
+        if ($request->filled('department_id')) {
+            $schools = School::where('department_id', $request->department_id)
+                             ->orderBy('name', 'asc')
+                             ->get();
         } else {
-            // Comportamiento normal (El Global Scope 'active' ya actúa por defecto)
+            // Carga todas por defecto para que el select no esté vacío al inicio
+            $schools = School::orderBy('name', 'asc')->get();
         }
 
+        // 2. CONSULTA BASE
+        $query = Mesa::with(['school.department', 'fiscal'])
+                     ->orderBy('number', 'asc');
 
-        // 3. Lógica según el Rol
+        // 2.5 MODO PAPELERA
+        if ($request->has('view_deleted')) {
+            $query->onlyTrashed();
+        }
+
+        // 3. SEGURIDAD (ROLES)
+        if ($user->role !== 'admin') {
+            // El Fiscal solo ve SUS mesas
+            $query->where('user_id', $user->id);
+        } 
+        
+        // 4. FILTROS (ADMIN)
+        // Solo el admin puede filtrar por Depto o Escuela ajena
         if ($user->role === 'admin') {
-            // Si es Admin, revisamos si mandó el filtro por URL (?department_id=5)
+            
             if ($request->filled('department_id')) {
-                // Filtramos las mesas cuya escuela pertenezca a ese departamento
-                $query->whereHas('school', function($q) use ($request) {
+                $query->whereHas('school', function ($q) use ($request) {
                     $q->where('department_id', $request->department_id);
                 });
             }
-        } else {
-            // Si es Fiscal, forzamos que solo vea sus mesas
-            $query->where('user_id', $user->id);
+
+            if ($request->filled('school_id')) {
+                $query->where('school_id', $request->school_id);
+            }
         }
 
-        // 4. Ordenamos y ejecutamos la consulta final
-        $mesas = $query->orderBy('number', 'asc')->get();
+        // 5. BUSCADOR GLOBAL (ADMIN Y FISCALES)
+        // Lo sacamos del 'if' para que el fiscal también pueda buscar entre sus mesas
+        if ($request->filled('search')) {
+            $query->where('number', 'like', '%' . $request->search . '%');
+        }
 
-        // 5. Enviamos 'mesas' Y 'departments' a la vista
-        return view('mesas.index', compact('mesas', 'departments'));
+        // 6. PAGINACIÓN
+        $mesas = $query->paginate(15);
+
+        // 7. VISTA (¡Agregamos 'schools'!)
+        return view('mesas.index', compact('mesas', 'departments', 'schools'));
     }
 
     /**
@@ -383,7 +404,7 @@ class MesaController extends Controller
     {
         $mesa = Mesa::withoutGlobalScope('active')->findOrFail($id);
 
-        $mesa->restore();
+        $mesa->restoreWithChildren();
 
         return redirect()->route('mesas.index', ['view_deleted' => 1])
                          ->with('success', 'Mesa restaurada correctamente.');
