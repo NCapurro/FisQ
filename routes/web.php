@@ -71,6 +71,13 @@ Route::middleware('auth')->group(function () {
 
 
 
+    // Vista de asignación individual
+    Route::get('/mesas/{mesa}/asignar', [MesaController::class, 'assign'])->name('mesas.assign');
+    
+    // Guardar la asignación
+    Route::put('/mesas/{mesa}/asignar', [MesaController::class, 'updateAssignment'])->name('mesas.update_assignment');
+
+
     // Asignación Masiva
     Route::get('/mesas/asignacion-masiva', [MesaController::class, 'batchAssign'])->name('mesas.batch_assign');
     Route::post('/mesas/asignacion-masiva', [MesaController::class, 'batchAssignStore'])->name('mesas.batch_assign_store');

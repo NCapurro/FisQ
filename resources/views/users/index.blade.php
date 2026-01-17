@@ -166,7 +166,7 @@
                                     </form>
 
                                     {{-- Botón 3: Eliminar --}}
-                                    @if(Auth::id() !== $user->id)
+                                    @if(Auth::id() !== $user->id && $user->role !== 'admin')
                                         <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Eliminar usuario?');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger w-100 text-start">

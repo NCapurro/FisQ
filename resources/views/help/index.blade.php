@@ -37,6 +37,14 @@
                         <i class="fa-solid fa-school me-2"></i> Escuelas
                     </a>
 
+                    <a class="list-group-item list-group-item-action" id="list-partys-list" data-bs-toggle="list" href="#list-partys" role="tab">
+                        <i class="fa-solid fa-flag me-2"></i> Partidos Políticos 
+                    </a>
+
+                    <a class="list-group-item list-group-item-action" id="list-maps-list" data-bs-toggle="list" href="#list-maps" role="tab">
+                        <i class="fa-solid fa-map me-2"></i> Mapa Electoral
+                    </a>
+
                     <a class="list-group-item list-group-item-action" id="list-audit-list" data-bs-toggle="list" href="#list-audit" role="tab">
                         <i class="fa-solid fa-eye me-2"></i> Auditoría (Logs)
                     </a>
@@ -92,14 +100,27 @@
                                 <span class="badge bg-success">Escrutada</span>
                                 <small>Los votos han sido cargados y guardados.</small>
                             </div>
-
+                            @if ($role === 'user')
+                            <hr>
+                            <h5>Acciones Disponibles</h5>
+                            <p>Como fiscal puedes:</p>
+                            <ul>
+                                <li><strong>Asignar Mesa:</strong> Apretando el botón  <i class="fa-solid fa-user-tag"></i> puedes reasignar la mesa a otro fiscal de su mismo departamento. </li>
+                                <li><strong>Asignar Lote:</strong> Reasignar múltiples mesas a un fiscal rápidamente.</li>
+                                <li><strong>Ver resultados de la mesa:</strong> Apretando el boton <i class="fa-solid fa-square-poll-vertical"></i> puede visualizar los resultados de la mesa. </li> 
+                                <p>Nota: Las mesas "Escrutadas" no se pueden eliminar ni reasignar para garantizar la integridad de los datos.</p>
+                                
+                            </ul>
+                            @endif
                             @if($role === 'admin')
                             <hr>
                             <h5>Funciones de Administrador</h5>
                             <p>Como administrador puedes:</p>
                             <ul>
+                                <li><strong>Editar/Asignar Mesa:</strong> Apretando el botón  <i class="fa-solid fa-pen"></i> puede editar la mesa o asignarle un fiscal. </li>
                                 <li><strong>Asignar Lote:</strong> Asignar múltiples mesas a un fiscal rápidamente.</li>
                                 <li><strong>Creación Masiva:</strong> Generar mesas automáticas por rangos numéricos.</li>
+                                <li><strong>Ver resultados de la mesa:</strong> Apretando el boton <i class="fa-solid fa-square-poll-vertical"></i> puede visualizar los resultados de la mesa. </li> 
                                 <li><strong>Papelera:</strong> Restaurar mesas eliminadas accidentalmente.</li>
                                 <p>Nota: Las mesas "Escrutadas" no se pueden eliminar ni reasignar para garantizar la integridad de los datos.</p>
                                 
@@ -120,10 +141,12 @@
                                 <li>Ingresa la cantidad de votos para cada partido político.</li>
                                 <li>Sube una <strong>foto del telegrama</strong> o acta (Obligatorio/Opcional según config).</li>
                                 <li>Presiona <strong>Guardar Resultados</strong>.</li>
+                                <li>En caso de guardar resultados erroneos, se pueden modificar con el boton <strong>Modificar Carga</strong>.</li>
+                                
                             </ol>
                             <div class="alert alert-warning">
                                 <i class="fa-solid fa-triangle-exclamation me-2"></i>
-                                <strong>Importante:</strong> Una vez guardada, la mesa pasa a estado "Escrutada" y no se puede modificar salvo por un Administrador.
+                                <strong>Importante:</strong> Una vez guardada, la mesa pasa a estado "Escrutada" y no se puede reasignar ni eliminar.
                             </div>
                         </div>
                     </div>
@@ -138,14 +161,15 @@
                             
                             <h5>Roles Disponibles</h5>
                             <ul>
-                                <li><strong>Administrador:</strong> Control total. Puede crear usuarios, escuelas y ver logs.</li>
+                                <li><strong>Administrador:</strong> Control total. Puede crear/editar usuarios, escuelas, partidos, resultados y ver logs.</li>
                                 <li><strong>Fiscal:</strong> Usuario operativo. Solo ve las mesas que se le asignan.</li>
                             </ul>
 
                             <h5>Acciones Clave</h5>
                             <ul>
                                 <li><strong>Ascender/Degradar:</strong> Puede cambiar el rol de un usuario desde el botón en el listado.</li>
-                                <li><strong>Baja Lógica:</strong> Al eliminar un usuario, este va a la papelera. Sus mesas asignadas quedan huérfanas o mantienen el ID histórico (según configuración).</li>
+                                <li><strong>Baja Lógica:</strong> Al eliminar un usuario, este va a la papelera. Sus mesas asignadas quedan huérfanas.
+                                En caso de restaurarse el usuario eliminado, debe volver a asignarse a la mesa.</li>
                             </ul>
                         </div>
                     </div>
@@ -158,6 +182,27 @@
                             <p>Las escuelas agrupan las mesas. Es fundamental tener cargadas las escuelas antes de crear mesas.</p>
                             <p>Use el buscador del listado para encontrar rápidamente una institución por nombre.</p>
                         </div>
+                    </div>
+                </div>
+
+                 <div class="tab-pane fade" id="list-partys" role="tabpanel">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h4 class="text-primary mb-3">Partidos Politicos</h4>
+                            <p>Se pueden crear/editar/eliminar o recuperar partidos politicos para la elección.</p>
+                            <p>Los partidos "Blanco", "Nulo" e "Impugnado" vienen por defecto.</p>
+                            <p>Los votos de un partido en cada resultado de cada mesa se eliminan y se restauran en cascada junto con el partido.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="list-maps" role="tabpanel">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h4 class="text-primary mb-3">Mapa Interactivo</h4>
+                            <p>En el mapa se puede ver la localización de cada resultado cargado.</p>
+                            <p>Apretando el pin <i class="fa-solid fa-location-dot me-1"></i> se puede acceder a los resultados de esa mesa. </p>
+                            </div>
                     </div>
                 </div>
 

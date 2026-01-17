@@ -1,6 +1,11 @@
-@extends('layouts.app') {{-- 1. ESTA LINEA ES VITAL: Carga los estilos --}}
+@extends('layouts.app') 
 
-@section('content') {{-- 2. ESTA LINEA ABRE EL CONTENIDO --}}
+@section('content') 
+
+{{-- CSS PARA SELECT INTELIGENTE --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
 
 <div class="container">
     <div class="row justify-content-center">
@@ -55,15 +60,14 @@
                             <label class="form-label fw-bold">Fiscal Responsable</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fa-solid fa-user"></i></span>
-                                <select name="user_id" class="form-select">
-                                   
-                                    @foreach($fiscals as $fiscal)
-                                        <option value="{{ $fiscal->id }}"
-                                            {{ $mesa->user_id == $fiscal->id ? 'selected' : '' }}>
-                                            {{ $fiscal->lastname }}, {{ $fiscal->name }} (DNI: {{ $fiscal->dni }})
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <select name="user_id" id="select_fiscal" class="form-select" required>
+                                <option value=""></option>
+                                @foreach($fiscals as $fiscal)
+                                    <option value="{{ $fiscal->id }}">
+                                        {{ $fiscal->lastname }}, {{ $fiscal->name }} (DNI: {{ $fiscal->dni }})
+                                    </option>
+                                @endforeach
+                            </select>
                             </div>
                         </div>
 
@@ -123,6 +127,23 @@
             })
             .catch(error => alert('No se pudo eliminar.'));
     }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/es.js"></script>
+
+<script>
+    // Usamos jQuery standard
+    $(document).ready(function() {
+        $('#select_fiscal').select2({
+            theme: 'bootstrap-5',
+            language: "es",
+            placeholder: 'Escribe para buscar un fiscal...',
+            width: '100%',
+            allowClear: true
+        });
+    });
 </script>
 
 @endpush

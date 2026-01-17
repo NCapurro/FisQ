@@ -48,11 +48,15 @@
                                     <a class="nav-link" href="{{ route('maps.index') }}">Mapa</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('logs.index') }}">Auditoria</a>
+                                </li>
+                            @endif
+                                <li class="nav-item">
                                    <a class="nav-link" href="{{ route('help.index') }}">
                                          <i class="fa-solid fa-circle-question"></i> Ayuda
                                     </a>
                                 </li>
-                            @endif
+                            
                         @endauth
                     </ul>
 

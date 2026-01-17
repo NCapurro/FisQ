@@ -164,7 +164,7 @@
                                         @else
                                             
                                             {{-- Editar (Solo Admin) --}}
-                                            @if(Auth::user()->role === 'admin')
+                                            @if(Auth::user()->role === 'admin' && $mesa->status !== 'scrutinized')
                                                 <a href="{{ route('mesas.edit', $mesa->id) }}" class="btn btn-outline-secondary" title="Editar Configuración">
                                                     <i class="fa-solid fa-pen"></i>
                                                 </a>
@@ -179,6 +179,11 @@
                                                 <a href="{{ route('results.create', $mesa->id) }}" class="btn btn-primary" title="Cargar Votos">
                                                     <i class="fa-solid fa-pen-to-square me-1"></i> Cargar
                                                 </a>
+                                                @if(Auth::user()->role !== 'admin')
+                                                <a href="{{ route('mesas.assign', $mesa->id) }}" class="btn btn-outline-warning text-dark" title="Asignar Fiscal">
+                                                    <i class="fa-solid fa-user-tag"></i> Asignar
+                                                </a>
+                                                @endif
                                             @endif
                                         @endif
                                     </div>

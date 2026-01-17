@@ -131,6 +131,10 @@ class MesaController extends Controller
             abort(403, 'No tienes permiso para editar esta mesa.');
         }
 
+        if ($mesa->status === 'scrutinized') {
+            abort(403, 'No puedes editar una mesa que ya fue escrutada.');
+        }
+
         $schools = School::all();
         
         // LOGICA DE FISCALES DISPONIBLES
@@ -200,9 +204,15 @@ class MesaController extends Controller
     {
 
         $mesa = Mesa::findOrFail($id);
-        $mesa->delete(); // Esto hará la baja lógica en cascada gracias al Trait
+        if ($mesa->status === 'scrutinized') {
+            return response()->json(['message' => 'No se puede eliminar una mesa escrutada'], 422);
+        }
+        else {
+            $mesa->delete(); // Esto hará la baja lógica en cascada gracias al Trait    
+            return response()->json(['message' => 'Mesa eliminada'], 200);
+            }
         
-        return response()->json(['message' => 'Mesa eliminada'], 200);
+        
     }
 
     /**
@@ -313,6 +323,46 @@ class MesaController extends Controller
         $schools = School::where('department_id', $departmentId)->get();
         return response()->json($schools);
     }
+
+
+
+    // Mostrar formulario de asignación
+    public function assign(Mesa $mesa)
+    {
+        // Validar seguridad: Solo Admin o el Fiscal dueño de la mesa pueden entrar
+        if (auth()->user()->role !== 'admin' && auth()->id() !== $mesa->user_id) {
+            abort(403, 'No tienes permiso para reasignar esta mesa.');
+        }
+
+        // Buscamos fiscales que:
+        // 1. Sean rol 'user' (fiscales) o 'admin'
+        // 2. Pertenezcan al mismo departamento que la ESCUELA de la mesa
+        // 3. (Opcional) No sea el usuario que ya la tiene asignada
+        $fiscals = User::whereIn('role', ['user', 'admin'])
+            ->where('department_id', $mesa->school->department_id)
+            ->where('id', '!=', $mesa->user_id) 
+            ->orderBy('lastname', 'asc')
+            ->get();
+
+        return view('mesas.assign', compact('mesa', 'fiscals'));
+    }
+
+    // Guardar el cambio
+    public function updateAssignment(Request $request, Mesa $mesa)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        // Actualizamos
+        $mesa->user_id = $request->user_id;
+        $mesa->status = 'asigned'; // Forzamos estado asignado
+        $mesa->save(); 
+        // Tu Observer se encargará de crear el Log automáticamente ;)
+
+        return redirect()->route('mesas.index')->with('success', 'Mesa reasignada correctamente.');
+    }
+
 
 
 

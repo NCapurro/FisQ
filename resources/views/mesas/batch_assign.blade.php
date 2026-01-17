@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -23,14 +27,14 @@
                             <label class="form-label fw-bold">1. Seleccione Fiscal Responsable</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fa-solid fa-user-tie"></i></span>
-                                <select name="user_id" class="form-select" required>
-                                    <option value="">Seleccione un fiscal...</option>
-                                    @foreach($fiscals as $fiscal)
-                                        <option value="{{ $fiscal->id }}">
-                                            {{ $fiscal->lastname }}, {{ $fiscal->name }} (DNI: {{ $fiscal->dni }})
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <select name="user_id" id="select_fiscal" class="form-select" required>
+                                <option value=""></option>
+                                @foreach($fiscals as $fiscal)
+                                    <option value="{{ $fiscal->id }}">
+                                        {{ $fiscal->lastname }}, {{ $fiscal->name }} (DNI: {{ $fiscal->dni }})
+                                    </option>
+                                @endforeach
+                            </select>
                             </div>
                         </div>
 
@@ -100,5 +104,22 @@
                 }
             });
     }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/es.js"></script>
+
+<script>
+    // Usamos jQuery standard
+    $(document).ready(function() {
+        $('#select_fiscal').select2({
+            theme: 'bootstrap-5',
+            language: "es",
+            placeholder: 'Escribe para buscar un fiscal...',
+            width: '100%',
+            allowClear: true
+        });
+    });
 </script>
 @endpush
