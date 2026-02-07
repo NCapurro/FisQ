@@ -45,6 +45,13 @@
                             <input type="password" name="password" class="form-control" required maxlength="16">
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                        @if (Route::has('password.request'))
+                        <div class="text-center">
+                             <a class="btn btn-link ps-0" href="{{ route('password.request') }}">
+                            {{ __('¿Olvidaste tu contraseña?') }}
+                             </a>
+                        </div>
+                        @endif
                     </form>
                 </div>
                 <div class="card-footer text-center">

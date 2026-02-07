@@ -13,8 +13,8 @@ El sistema permite gestionar la estructura electoral completa (Escuelas, Mesas, 
 
 Este proyecto fue desarrollado como trabajo final para la carrera de **Analista de Sistemas**.
 
----
 
+---
 
 ## Características Principales
 
@@ -31,15 +31,17 @@ Este proyecto fue desarrollado como trabajo final para la carrera de **Analista 
 - Carga de actas de escrutinio con validación de datos.
 
 ### 🛡️ Seguridad y Auditoría
+- **Autenticación Robusta:** Login seguro y sistema de recuperación de contraseñas vía email (simulado en logs).
 - **Roles y Permisos:** Diferenciación estricta entre Administradores y Fiscales.
 - **Módulo de Logs:** Registro inmutable de acciones ("Quién hizo qué y cuándo") con diferenciación visual de eventos.
-- **Backup System:** Generación manual de copias de seguridad (`.sql`) utilizando procesos nativos del sistema, con descarga directa desde el panel administrativo.
+- **Backup System:** Generación manual de copias de seguridad (`.sql`) utilizando procesos nativos del sistema.
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
 * **Backend:** PHP 8.3, Laravel 11.
+* **Autenticación:** Laravel UI (Legacy support for Bootstrap).
 * **Base de Datos:** MySQL 8.0+.
 * **Frontend:** Blade Templates, Bootstrap 5.
 * **Librerías Clave:**
@@ -73,15 +75,22 @@ Sigue estos pasos para levantar el proyecto en un entorno local:
 
 3.  **Configurar entorno:**
     - Copiar el archivo de entorno: `cp .env.example .env`
-    - Configurar la base de datos en el archivo `.env`:
+    - Configurar la base de datos y **el sistema de correos** en el archivo `.env`:
+    
     ```env
+    # Base de Datos
     DB_CONNECTION=mysql
-    DB_HOST=127.0.0.1  <-- Importante: Usar IP numérica
+    DB_HOST=127.0.0.1
     DB_PORT=3306
     DB_DATABASE=fisq
     DB_USERNAME=root
     DB_PASSWORD=
+
+    # Configuración de Mail (Para recuperación de contraseña en local)
+    MAIL_MAILER=log
+    MAIL_FROM_ADDRESS="admin@fisq.com"
     ```
+    *(Nota: Al usar `MAIL_MAILER=log`, los links de recuperación de contraseña se escribirán en `storage/logs/laravel.log` en lugar de enviarse por internet).*
 
 4.  **Generar clave de aplicación:**
     ```bash

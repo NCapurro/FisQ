@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SchoolController;
@@ -19,6 +20,19 @@ use App\Http\Controllers\HelpController;
 |--------------------------------------------------------------------------
 | Aquí registramos todas las rutas de la aplicación.
 */
+
+// =========================================================================
+// 0. RUTAS DE AUTENTICACIÓN (Password Reset)
+// =========================================================================
+// Desactivamos login/register automáticos para usar nuestro AuthController personalizado,
+// pero dejamos activado 'reset' para que funcione la recuperación de contraseña.
+Auth::routes([
+    'login'    => false, 
+    'logout'   => false, 
+    'register' => false, 
+    'reset'    => true, // <--- ESTO HABILITA "OLVIDÉ MI CONTRASEÑA"
+    'verify'   => false,
+]);
 
 // =========================================================================
 // 1. RUTAS PÚBLICAS (GUEST)
@@ -104,14 +118,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/mapa-en-vivo', [MapController::class, 'index'])->name('maps.index');
 
     // --- GESTIÓN DE USUARIOS (SOLO ADMIN) ---
-    // Usamos un middleware extra o simplemente confiamos en el Controller que ya tiene validación
-    // Para mayor seguridad visual, puedes envolverlo:
-    /*
-    Route::middleware('can:admin-access')->group(function () {
-        Route::resource('users', UserController::class);
-    });
-    */
-    // Por ahora, lo dejamos abierto y que el Controller rechace si no es admin:
+   
+    // Por ahora el Controller rechaza si no es admin:
     Route::resource('users', UserController::class);
 
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
