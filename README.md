@@ -1,11 +1,11 @@
-# 🗳️ FisQ - Sistema de Gestión y Escrutinio Electoral
+# FisQ - Sistema de Gestión y Escrutinio Electoral
 
 ![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
 
-## 📖 Descripción del Proyecto
+## Descripción del Proyecto
 
 **FisQ** es una solución integral desarrollada para la administración, fiscalización y visualización de procesos electorales en tiempo real. 
 
@@ -103,8 +103,8 @@ Sigue estos pasos para levantar el proyecto en un entorno local:
     ```
 
 ### 🔐 Credenciales por Defecto (Seeders)
-* **Admin:** `admin@admin.com` / `password`
-* **Fiscal:** `fiscal@fiscal.com` / `password`
+* **Admin:** `admin@admin.com` / `admin123`
+* **Fiscal:** `fiscal@fiscal.com` / `fiscal123`
 
 ---
 
