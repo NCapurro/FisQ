@@ -10,6 +10,8 @@ use App\Http\Controllers\ResultController;
 use App\Http\Controllers\GraphicController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\HelpController;
 
 /*
 |--------------------------------------------------------------------------
@@ -119,6 +121,12 @@ Route::middleware('auth')->group(function () {
     ->middleware('auth');
 
     // --- PÁGINA DE AYUDA ---
-    Route::get('/ayuda', [App\Http\Controllers\HelpController::class, 'index'])->name('help.index');
+    Route::get('/ayuda', [HelpController::class, 'index'])->name('help.index');
+
+    // Backups (Solo Admin se valida en el controller)
+    Route::get('/backups', [BackupController::class, 'index'])->name('backups.index');
+    Route::post('/backups/create', [BackupController::class, 'create'])->name('backups.create');
+    Route::get('/backups/download/{file_name}', [BackupController::class, 'download'])->name('backups.download');
+    Route::delete('/backups/delete/{file_name}', [BackupController::class, 'delete'])->name('backups.delete');
 
 });

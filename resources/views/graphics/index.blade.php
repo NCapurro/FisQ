@@ -2,6 +2,7 @@
 
 @section('content')
 <div class="container">
+    {{-- ENCABEZADO Y FILTRO --}}
     <div class="row mb-4 align-items-center">
         <div class="col-md-6">
             <h2 class="fw-bold text-dark">
@@ -28,11 +29,47 @@
         </div>
     </div>
 
+    {{-- TARJETA DEL GRÁFICO --}}
     <div class="card shadow border-0">
-        <div class="card-header bg-white py-3">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
             <h5 class="mb-0 fw-bold text-secondary">Distribución de Votos</h5>
+            
+            {{-- CHIP DE ESTADO --}}
+            @if($avance >= 100)
+                <span class="badge bg-success"><i class="fa-solid fa-check-double me-1"></i> Escrutinio Finalizado</span>
+            @else
+                <span class="badge bg-warning text-dark"><i class="fa-solid fa-spinner fa-spin me-1"></i> En Proceso</span>
+            @endif
         </div>
+        
         <div class="card-body p-4">
+            
+            {{-- 🟢 NUEVO: BARRA DE PROGRESO DE ESCUELAS ESCRUTADAS --}}
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-end mb-1">
+                    <span class="fw-bold text-muted small text-uppercase">Avance del Escrutinio</span>
+                    <div class="text-end">
+                        <span class="fw-bold fs-5 {{ $avance == 100 ? 'text-success' : 'text-primary' }}">
+                            {{ $avance }}%
+                        </span>
+                        <span class="text-muted small ms-1">
+                            ({{ $mesasEscrutadas }} de {{ $totalMesas }} mesas)
+                        </span>
+                    </div>
+                </div>
+                <div class="progress" style="height: 12px; border-radius: 10px; background-color: #e9ecef;">
+                    <div class="progress-bar {{ $avance == 100 ? 'bg-success' : 'bg-primary' }} progress-bar-striped progress-bar-animated" 
+                         role="progressbar" 
+                         style="width: {{ $avance }}%" 
+                         aria-valuenow="{{ $avance }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+            </div>
+            {{-- FIN BARRA DE PROGRESO --}}
+
+
             @if(count($labels) > 0)
                 <div style="position: relative; height: 400px; width: 100%;">
                     <canvas id="votesChart"></canvas>
@@ -50,33 +87,28 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 @endsection
+
 @push('scripts')
 <script>
-    // Variable global para controlar la instancia del gráfico y evitar duplicados
     let myChartInstance = null;
 
     document.addEventListener("DOMContentLoaded", function() {
-        // Retraso de seguridad de 100ms para asegurar que el HTML esté renderizado
         setTimeout(initChart, 100);
     });
 
     function initChart() {
         const ctx = document.getElementById('votesChart');
 
-        // Si no hay datos (no existe el canvas), salimos sin error
         if (!ctx) return;
 
-        // 1. LIMPIEZA: Si ya existe un gráfico, lo destruimos antes de crear el nuevo
         if (myChartInstance) {
             myChartInstance.destroy();
         }
 
-        // 2. DATOS DESDE LARAVEL
         const labels = {!! json_encode($labels) !!};
         const dataValues = {!! json_encode($data) !!};
         const colors = {!! json_encode($colors) !!};
 
-        // 3. CONFIGURACIÓN
         myChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -85,7 +117,7 @@
                     label: 'Votos',
                     data: dataValues,
                     backgroundColor: colors,
-                    borderColor: 'rgba(0,0,0,0.1)', // Borde sutil
+                    borderColor: 'rgba(0,0,0,0.1)',
                     borderWidth: 1,
                     borderRadius: 4,
                     barPercentage: 0.6,
@@ -93,18 +125,15 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // CRUCIAL: Permite que el gráfico obedezca la altura del div (400px)
-                animation: {
-                    duration: 800
-                },
+                maintainAspectRatio: false,
+                animation: { duration: 800 },
                 plugins: {
-                    legend: {
-                        display: false // Ocultamos leyenda porque los nombres ya están abajo
-                    },
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.raw + '%';
+                                // Muestra el valor absoluto y el porcentaje relativo del dataset si se quisiera
+                                return context.parsed.y + '% Votos'; 
                             }
                         }
                     }
@@ -112,17 +141,11 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: {
-                            color: '#f8f9fa'
-                        },
-                        ticks: {
-                            precision: 0 // Evita decimales en el eje Y
-                        }
+                        grid: { color: '#f8f9fa' },
+                        ticks: { precision: 0 }
                     },
                     x: {
-                        grid: {
-                            display: false
-                        }
+                        grid: { display: false }
                     }
                 }
             }

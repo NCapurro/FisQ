@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // -------------------------------------------------------
         $entreRios = Province::create(['name' => 'Entre Ríos']);
 
-        $nombresDeptos = ['Paraná', 'Concordia', 'Gualeguaychú', 'Uruguay', 'Federación', 'La Paz'];
+        $nombresDeptos = ['Paraná', 'Concordia', 'Gualeguaychú', 'Uruguay', 'Federación', 'La Paz', 'Nogoyá', 'Diamante', 'Colón', 'Villaguay', 'Islas del Ibicuy', 'Tala', 'Victoria', 'Gualeguay', 'Federal', 'Feliciano', 'San Salvador' ];
         
         // Guardamos los objetos departamentos creados para usarlos después
         $deptosCreados = []; 

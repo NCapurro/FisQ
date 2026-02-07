@@ -7,6 +7,7 @@ use App\Models\Result;
 use App\Models\Department;
 use App\Models\PoliticalParty;
 use Illuminate\Support\Facades\DB;
+use App\Models\Mesa;
 
 class GraphicController extends Controller
 {
@@ -62,6 +63,23 @@ class GraphicController extends Controller
             }
         }
 
-        return view('graphics.index', compact('departments', 'labels', 'data', 'colors'));
+        // 1. Iniciamos la consulta base de Mesas
+    $mesasQuery = Mesa::query();
+
+    // 2. Si hay filtro de departamento, filtramos las mesas por su escuela
+    if ($request->filled('department_id')) {
+        $mesasQuery->whereHas('school', function($q) use ($request) {
+            $q->where('department_id', $request->department_id);
+        });
+    }
+
+    // 3. Obtenemos los contadores (usamos clone para no afectar la query original)
+    $totalMesas = (clone $mesasQuery)->count();
+    $mesasEscrutadas = (clone $mesasQuery)->where('status', 'scrutinized')->count();
+
+    // 4. Calculamos porcentaje (evitando división por cero)
+    $avance = $totalMesas > 0 ? round(($mesasEscrutadas / $totalMesas) * 100, 1) : 0;
+
+        return view('graphics.index', compact('labels', 'data', 'colors', 'departments', 'avance', 'totalMesas', 'mesasEscrutadas'));
     }
 }

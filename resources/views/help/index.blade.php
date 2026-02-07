@@ -48,6 +48,11 @@
                     <a class="list-group-item list-group-item-action" id="list-audit-list" data-bs-toggle="list" href="#list-audit" role="tab">
                         <i class="fa-solid fa-eye me-2"></i> Auditoría (Logs)
                     </a>
+
+                    <a class="list-group-item list-group-item-action" id="list-backups-list" data-bs-toggle="list" href="#list-backups" role="tab">
+                        <i class="fa-solid fa-database me-2"></i> Backups
+                    </a>
+
                 @endif
             </div>
         </div>
@@ -219,6 +224,25 @@
                                 <li>Cambios de asignación de fiscales.</li>
                             </ul>
                             <p>Estos registros son inalterables y sirven para garantizar la transparencia del comicio.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="list-backups" role="tabpanel">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h4 class="text-primary mb-3">Backups</h4>
+                            <p>El sistema permite generar copias de respaldo de la base de datos.</p>
+                            
+                            <h5>Como generarla?</h5>
+                            <ul>
+                                <li>Oprimir "Generar Nuevo Backup"</li>
+                                <li>Los backups generados aparecen listados.</li>
+                                <li>Oprimiendo el botón <i class="fa-solid fa-download"></i> puede descargar la copia. </li>
+                                <li>Oprimiendo el botón  <i class="fa-solid fa-trash"></i> puede borrar la copia.</li>
+                                
+                            </ul>
+                            <p>Para restaurar la base de datos desde una copia necesita al DBA (database admin)</p>
                         </div>
                     </div>
                 </div>
