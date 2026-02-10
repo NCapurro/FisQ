@@ -17,6 +17,9 @@ class MapController extends Controller
                     ->select('mesa_id', 'user_id', 'latitude', 'longitude', 'created_at')
                     ->whereNotNull('latitude')
                     ->whereNotNull('longitude')
+                    ->whereHas('mesa', function($q) {
+                        $q->where('is_active', true); // Solo mesas activas
+                    })
                     // Obtener solo una fila por mesa (la última carga)
                     ->groupBy('mesa_id', 'user_id', 'latitude', 'longitude', 'created_at') 
                     ->get();

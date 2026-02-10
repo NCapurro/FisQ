@@ -48,6 +48,7 @@ class ResultController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'photo' => 'nullable|image|max:10240',
+            'electores_totales' => 'nullable|integer|min:0',
         ]);
 
         try {
@@ -92,9 +93,22 @@ class ResultController extends Controller
             $pathEnBaseDeDatos = $rutaGuardada; 
         }
 
+            // --- ACTUALIZACIÓN DE LA MESA ---
+            
+            // Preparamos los datos básicos a actualizar
+            $datosMesa = [
+                'status' => 'scrutinized',
+                'image_path' => $pathEnBaseDeDatos
+            ];
+
+            // Si el usuario mandó el total de electores, lo agregamos al array
+            if ($request->filled('electores_totales')) { 
+                $datosMesa['electores_totales'] = $request->input('electores_totales');
+            }
 
             // Actualizar estado de la mesa
-            $mesa->update(['status' => 'scrutinized','image_path' => $pathEnBaseDeDatos]);
+            // Ejecutamos el update con todos los datos juntos
+            $mesa->update($datosMesa); // <--- MODIFICADO
 
             DB::commit();
 

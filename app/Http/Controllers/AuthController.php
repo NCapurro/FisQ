@@ -52,7 +52,6 @@ class AuthController extends Controller
         Auth::login($user);
 
         // 4. Redirigir al home o dashboard
-        // Si es API/Híbrido puedes devolver JSON, pero en registro web se suele redirigir
         return redirect()->route('mesas.index'); 
     }
 

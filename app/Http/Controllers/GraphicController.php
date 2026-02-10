@@ -21,8 +21,10 @@ class GraphicController extends Controller
 
         // 2. Calculamos el TOTAL DE VOTOS VÁLIDOS (El denominador)
         // Hacemos una consulta para sumar todo lo que sea de estos partidos
-        $validVotesQuery = Result::whereIn('political_party_id', $validParties->pluck('id'));
-        
+       $validVotesQuery = Result::whereIn('political_party_id', $validParties->pluck('id'))
+            ->whereHas('mesa', function($q) {
+                $q->where('is_active', true); //  Solo mesas activas
+            });
         // Aplicamos el mismo filtro de departamento al totalizador
         if ($request->filled('department_id')) {
             $validVotesQuery->whereHas('mesa.school', function($q) use ($request) {
@@ -40,8 +42,10 @@ class GraphicController extends Controller
         foreach ($validParties as $party) {
             
             // Consulta de votos para este partido específico
-            $query = Result::where('political_party_id', $party->id);
-
+           $query = Result::where('political_party_id', $party->id)
+                ->whereHas('mesa', function($q) {
+                    $q->where('is_active', true); // Solo mesas activas
+                });
             // Filtro de depto
             if ($request->filled('department_id')) {
                 $query->whereHas('mesa.school', function($q) use ($request) {
@@ -64,7 +68,7 @@ class GraphicController extends Controller
         }
 
         // 1. Iniciamos la consulta base de Mesas
-    $mesasQuery = Mesa::query();
+    $mesasQuery = Mesa::where('is_active', true); // La base son solo activas
 
     // 2. Si hay filtro de departamento, filtramos las mesas por su escuela
     if ($request->filled('department_id')) {

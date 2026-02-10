@@ -44,7 +44,7 @@
         
         <div class="card-body p-4">
             
-            {{-- 🟢 NUEVO: BARRA DE PROGRESO DE ESCUELAS ESCRUTADAS --}}
+            {{-- BARRA DE PROGRESO DE ESCUELAS ESCRUTADAS --}}
             <div class="mb-5">
                 <div class="d-flex justify-content-between align-items-end mb-1">
                     <span class="fw-bold text-muted small text-uppercase">Avance del Escrutinio</span>

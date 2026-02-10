@@ -47,6 +47,7 @@ Este proyecto fue desarrollado como trabajo final para la carrera de **Analista 
 * **Librerías Clave:**
     * `chart.js`: Gráficos estadísticos.
     * `select2`: Búsquedas asíncronas en listas desplegables.
+    * `leaflet.js`: Mapas interactivos con OpenStreetMap.
     * `fontawesome`: Iconografía.
 
 ---

@@ -13,6 +13,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\HelpController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -136,5 +137,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/backups/create', [BackupController::class, 'create'])->name('backups.create');
     Route::get('/backups/download/{file_name}', [BackupController::class, 'download'])->name('backups.download');
     Route::delete('/backups/delete/{file_name}', [BackupController::class, 'delete'])->name('backups.delete');
+
+
+    Route::get('/reportes', [ReportController::class, 'index'])->name('reports.index');
+    // Grupo de Reportes (Protegido por autenticación)
+    Route::prefix('reportes')->name('reports.')->group(function () {
+    // 1. Matriz de Resultados
+    Route::get('/resultados', [ReportController::class, 'resultados'])->name('resultados');
+    // 2. Mapa de Calor (Ganadores)
+    Route::get('/mapa', [ReportController::class, 'mapa'])->name('mapa');
+    // 3. Log de Incidentes
+    Route::get('/incidentes', [ReportController::class, 'incidentes'])->name('incidentes');
+});
 
 });

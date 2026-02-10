@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('status', ['created', 'asigned', 'scrutinized'])->default('created');
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('image_path')->nullable();
+            $table->integer('electores_totales')->nullable(); // Nuevo campo para total de electores por mesa
             $table->timestamps();
             $table->boolean('is_active')->default(true);
 

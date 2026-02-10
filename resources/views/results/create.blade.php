@@ -27,6 +27,29 @@
                             </div>
                         </div>
 
+                        {{-- NUEVO INPUT: ELECTORES TOTALES --}}
+                        <div class="card mb-4 border-warning">
+                            <div class="card-body bg-warning bg-opacity-10 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <label for="electoresInput" class="fw-bold text-dark mb-1">
+                                        <i class="fa-solid fa-users me-2"></i>Electores Habilitados (Padrón)
+                                    </label>
+                                    <small class="d-block text-muted">Cantidad total de personas en el acta.</small>
+                                </div>
+                                <div style="width: 120px;">
+                                    <input type="number" 
+                                           name="electores_totales" 
+                                           id="electoresInput"
+                                           class="form-control form-control-lg text-center fw-bold"
+                                           value="{{ $mesa->electores_totales ?? 350 }}" 
+                                           min="0"
+                                           placeholder="350">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group list-group-flush mb-4">
+
                         <div class="list-group list-group-flush mb-4">
                             @foreach($parties as $party)
                                 {{-- Lógica para recuperar valor si ya existe (Edición) --}}
@@ -177,6 +200,13 @@
         if(!confirm(`Confirmar carga de resultados.\n\nTOTAL DE VOTOS: ${total}`)) {
             return;
         }
+
+        document.querySelectorAll('.vote-input').forEach(input => {
+            // Si el valor está vacío o es solo espacios
+            if (input.value.trim() === '') {
+                input.value = '0'; // Forzamos el 0 visual y en el valor
+            }
+        });
 
         const form = document.getElementById('resultsForm');
         const formData = new FormData(form);

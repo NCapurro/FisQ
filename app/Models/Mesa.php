@@ -18,6 +18,7 @@ class Mesa extends Model
     'school_id',
     'status',
     'user_id',
+    'electores_totales',
     'image_path',
     'is_active'
     ];
