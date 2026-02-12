@@ -56,10 +56,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('backups.index') }}">Backups</a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('reports.index') }}">Reportes</a>
-                                </li>
-
+                    
                                 {{-- MENÚ DE REPORTES --}}
 <li class="nav-item dropdown">
     <a id="navbarDropdownReportes" class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -96,6 +93,12 @@
                                 <li class="nav-item">
                                    <a class="nav-link" href="{{ route('help.index') }}">
                                          <i class="fa-solid fa-circle-question"></i> Ayuda
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                   <a class="nav-link" href="{{ route('incidents.create') }}">
+                                         <i class="fa-solid fa-circle-exclamation text-warning"></i>  Reportar un problema
                                     </a>
                                 </li>
                             

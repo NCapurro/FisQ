@@ -1,9 +1,50 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+<div class="container-fluid px-4"> {{-- Usamos container-fluid para más espacio --}}
+    <div class="row">
+        <div class="col-lg-4 col-md-5 mb-4">
+            <div class="card shadow-sm border-0 ">
+                <div class="card-header bg-info text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-circle-info me-2"></i>Instrucciones</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-dark">Por favor, siga estos pasos para asegurar la validez de los datos:</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0 border-0">
+                            <i class="fa-solid fa-check text-success me-2"></i> 
+                            Copie los valores tal cual figuran en el <strong>acta oficial</strong>.
+                        </li>
+                        <li class="list-group-item px-0 border-0">
+                            <i class="fa-solid fa-calculator text-primary me-2"></i> 
+                            El sistema sumará automáticamente el "Total General".
+                        </li>
+                        <li class="list-group-item px-0 border-0">
+                            <i class="fa-solid fa-triangle-exclamation text-warning me-2"></i> 
+                            <strong>Validación:</strong> El total de votos no puede superar el padrón de la mesa.
+                        </li>
+                        <li class="list-group-item px-0 border-0">
+                            <i class="fa-solid fa-camera text-secondary me-2"></i> 
+                            Asegúrese de que la foto adjunta sea legible.
+                        </li>
+                    </ul>
+
+                    {{-- BOTÓN PARA REPORTAR INCIDENCIA --}}
+            <div class="d-grid gap-2 mt-2">
+                <a href="{{ route('incidents.create', ['mesa_id' => $mesa->id]) }}" class="btn btn-outline-danger fw-bold shadow-sm">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>¿PROBLEMAS CON ESTA MESA?
+                </a>
+            </div>
+                    
+                    <div class="mt-4 p-3 bg-light rounded border border-info">
+                        <small class="text-muted d-block italic">Nota:</small>
+                        <small>Si ya cargó datos anteriormente, al guardar se sobrescribirán con los valores actuales.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-md-7">
             <div class="card shadow border-0">
                 <div class="card-header bg-primary text-white text-center py-3">
                     <h4 class="mb-0 fw-bold"><i class="fa-solid fa-file-pen me-2"></i>Planilla de Escrutinio</h4>
@@ -19,43 +60,32 @@
                         <input type="hidden" name="latitude" id="lat">
                         <input type="hidden" name="longitude" id="lng">
 
-                        <div class="alert alert-info border-info d-flex align-items-center mb-4">
-                            <i class="fa-solid fa-circle-info me-3 text-info fs-3"></i>
-                            <div>
-                                <strong>Instrucciones:</strong> Copie los valores del acta. 
-                                El sistema sumará automáticamente. Si ya cargó datos antes, edítelos y guarde nuevamente.
-                            </div>
-                        </div>
-
-                        {{-- NUEVO INPUT: ELECTORES TOTALES --}}
-                        <div class="card mb-4 border-warning">
+                        {{-- INPUT: ELECTORES TOTALES --}}
+                        <div class="card mb-4 border-warning shadow-sm">
                             <div class="card-body bg-warning bg-opacity-10 d-flex justify-content-between align-items-center">
                                 <div>
                                     <label for="electoresInput" class="fw-bold text-dark mb-1">
                                         <i class="fa-solid fa-users me-2"></i>Electores Habilitados (Padrón)
                                     </label>
-                                    <small class="d-block text-muted">Cantidad total de personas en el acta.</small>
+                                    <small class="d-block text-muted">Límite máximo permitido para esta mesa.</small>
                                 </div>
                                 <div style="width: 120px;">
                                     <input type="number" 
                                            name="electores_totales" 
                                            id="electoresInput"
-                                           class="form-control form-control-lg text-center fw-bold"
+                                           class="form-control form-control-lg text-center fw-bold border-warning"
                                            value="{{ $mesa->electores_totales ?? 350 }}" 
                                            min="0"
-                                           placeholder="350">
+                                           oninput="calcularTotal()"> {{-- Llamamos aquí también para validar en tiempo real --}}
                                 </div>
                             </div>
                         </div>
 
                         <div class="list-group list-group-flush mb-4">
-
-                        <div class="list-group list-group-flush mb-4">
                             @foreach($parties as $party)
-                                {{-- Lógica para recuperar valor si ya existe (Edición) --}}
                                 @php
                                     $prevVote = $mesa->results->where('political_party_id', $party->id)->first();
-                                    $val = $prevVote ? $prevVote->votes : ''; // Dejamos vacío si es 0 para que se vea el placeholder
+                                    $val = $prevVote ? $prevVote->votes : '';
                                 @endphp
 
                                 <div class="list-group-item py-3 px-2 border-bottom">
@@ -85,45 +115,31 @@
                             @endforeach
                         </div>
 
-                        <div class="card bg-light border-0 mb-4">
+                        <div class="card bg-light border-0 mb-4 shadow-sm" id="totalCard">
                             <div class="card-body d-flex justify-content-between align-items-center px-4">
-                                <span class="fw-bold text-uppercase text-secondary">Total General</span>
+                                <span class="fw-bold text-uppercase text-secondary">Total General de Votos</span>
                                 <span id="displayTotal" class="display-6 fw-bold text-primary">0</span>
                             </div>
                         </div>
 
+                        {{-- FOTO DEL ACTA --}}
                         <div class="card bg-light border-0 mb-4">
                             <div class="card-body">
                                 <h6 class="fw-bold text-uppercase text-muted mb-3">
                                     <i class="fa-solid fa-camera me-2"></i>Foto del Acta Oficial
                                 </h6>
-                                
-                                <input type="file" 
-                                       name="photo" 
-                                       id="photoInput" 
-                                       class="form-control" 
-                                       accept="image/*" 
-                                       capture="environment">
-                                
-                                <div class="form-text">
-                                    Por favor, tome una foto clara y legible del acta firmada.
-                                </div>
-
+                                <input type="file" name="photo" id="photoInput" class="form-control" accept="image/*" capture="environment">
                                 <div id="photoPreviewContainer" class="mt-3 d-none text-center">
-                                    <p class="small text-muted mb-1">Vista previa:</p>
                                     <img id="photoPreview" src="" class="img-fluid rounded shadow-sm" style="max-height: 300px;">
                                 </div>
                             </div>
                         </div>
 
-
                         <div class="d-grid gap-2">
-                            <button type="button" onclick="enviarEscrutinio()" class="btn btn-success btn-lg fw-bold">
+                            <button type="button" id="btnGuardar" onclick="enviarEscrutinio()" class="btn btn-success btn-lg fw-bold">
                                 <i class="fa-solid fa-save me-2"></i> GUARDAR RESULTADOS
                             </button>
-                            <a href="{{ route('mesas.index') }}" class="btn btn-outline-secondary">
-                                Cancelar
-                            </a>
+                            <a href="{{ route('mesas.index') }}" class="btn btn-outline-secondary">Cancelar</a>
                         </div>
                     </form>
                 </div>
@@ -191,16 +207,41 @@
             if(isNaN(val) || val < 0) val = 0;
             total += val;
         });
+
+        const displayTotal = document.getElementById('displayTotal');
+        const totalCard = document.getElementById('totalCard');
+        const btnGuardar = document.getElementById('btnGuardar');
+
         document.getElementById('displayTotal').innerText = total;
+
+        // VALIDACIÓN VISUAL EN TIEMPO REAL
+        if (total > padron) {
+            displayTotal.classList.replace('text-primary', 'text-danger');
+            totalCard.classList.add('border', 'border-danger');
+            // Opcional: btnGuardar.disabled = true; 
+        } else {
+            displayTotal.classList.replace('text-danger', 'text-primary');
+            totalCard.classList.remove('border', 'border-danger');
+            btnGuardar.disabled = false;
+        }
     }
 
     function enviarEscrutinio() {
         const total = document.getElementById('displayTotal').innerText;
+        const padron = parseInt(document.getElementById('electoresInput').value) || 0;
         
-        if(!confirm(`Confirmar carga de resultados.\n\nTOTAL DE VOTOS: ${total}`)) {
-            return;
+        // VALIDACIÓN ANTES DE ENVIAR
+        if (total > padron) {
+            alert(`⚠️ ERROR DE CONSISTENCIA:\n\nEl total de votos (${total}) no puede ser mayor a la cantidad de electores habilitados (${padron}).\n\nPor favor, verifique los números ingresados.`);
+            return; // Bloquea la ejecución
         }
 
+        if (total === 0) {
+            if(!confirm("El total de votos es 0. ¿Está seguro de guardar la planilla vacía?")) return;
+        } else {
+            if(!confirm(`Confirmar carga de resultados.\n\nTOTAL DE VOTOS: ${total}`)) return;
+        }
+        
         document.querySelectorAll('.vote-input').forEach(input => {
             // Si el valor está vacío o es solo espacios
             if (input.value.trim() === '') {

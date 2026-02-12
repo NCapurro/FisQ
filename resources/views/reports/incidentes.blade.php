@@ -63,13 +63,27 @@
                             @endif
                         </td>
                         <td>{{ $inc->description }}</td>
-                        <td>
-                            @if($inc->is_resolved)
-                                <span class="badge bg-success">Resuelto</span>
-                            @else
-                                <span class="badge bg-secondary">Pendiente</span>
-                            @endif
-                        </td>
+                        <td class="text-center align-middle">
+    <div class="d-flex align-items-center justify-content-center">
+        @if($inc->is_resolved)
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                <i class="fa-solid fa-check-double me-1"></i> Resuelto
+            </span>
+        @else
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2">
+                <i class="fa-solid fa-clock me-1"></i> Pendiente
+            </span>
+
+            <button type="button" 
+                class="btn btn-sm btn-success shadow-sm ms-3 px-3 fw-bold btn-hover-scale" 
+                data-url="{{ route('incidents.mark_resolved', $inc->id) }}"
+                onclick="markAsResolved(this)"
+                title="Marcar como resuelto">
+                <i class="fa-solid fa-check me-1"></i> Resolver
+            </button>
+        @endif
+    </div>
+</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -78,3 +92,24 @@
     </div>
 </div>
 @endsection
+
+
+@push('scripts')
+<script>
+    function markAsResolved(element) {
+        const url = element.getAttribute('data-url');
+        
+        if (!confirm('¿Confirmas que esta incidencia ha sido solucionada?')) return;
+
+        // Enviamos un POST simple, ya que así lo definimos en web.php
+        axios.post(url)
+            .then(response => {
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error detallado:', error);
+                alert('Ocurrió un error. Revisa la consola (F12).');
+            });
+    }
+</script>
+@endpush

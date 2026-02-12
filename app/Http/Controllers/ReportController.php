@@ -25,7 +25,8 @@ class ReportController extends Controller
         // Si pide exportar
         if ($request->has('format')) {
             if ($request->format === 'pdf') {
-                $pdf = Pdf::loadView('reports.resultados_pdf', $data);
+                $logoBase64 = $this->generarLogo(); // Generamos el logo en Base64 para la marca de agua
+                $pdf = Pdf::loadView('reports.resultados_pdf', $data, compact('logoBase64'));
                 return $pdf->setPaper('a4', 'landscape')->stream('resultados-departamentales.pdf');
             }
             if ($request->format === 'excel') {
@@ -119,7 +120,7 @@ class ReportController extends Controller
         $parties = PoliticalParty::all(); // Incluimos todos para buscar colores
 
         $coloresMap = [];
-        $ganadores = [];
+        
         $datosMapa = [];
 
         foreach ($departments as $depto) {
@@ -164,32 +165,22 @@ class ReportController extends Controller
                 'porcentaje' => $porcentaje . '%'
             ];
             
-            $ganadores[] = [
-                'depto' => $depto->name,
-                'ganador' => $ganadorNombre,
-                'votos' => $maxVotos,
-                'color' => $ganadorColor,
-                'porcentaje' => $porcentaje
-                
-            ];
+            
         }
 
         if ($request->has('format') && $request->format === 'pdf') {
             // Para el PDF, podríamos generar una imagen del mapa con los colores aplicados
             $mapaImagen = $this->generarMapaBase64($coloresMap);
 
-            $pathLogo = public_path('img/fisqlogo.png');
-            $typeLogo = pathinfo($pathLogo, PATHINFO_EXTENSION);
-            $dataLogo = file_get_contents($pathLogo);
-            $logoBase64 = 'data:image/' . $typeLogo . ';base64,' . base64_encode($dataLogo);
+           $logoBase64 = $this->generarLogo(); // Generamos el logo en Base64 para la marca de agua
 
             // 2. Se lo pasamos a la vista
-            $pdf = Pdf::loadView('reports.mapa_pdf', compact('mapaImagen', 'ganadores', 'logoBase64'));
+            $pdf = Pdf::loadView('reports.mapa_pdf', compact('mapaImagen', 'datosMapa', 'logoBase64'));
             return $pdf->stream('mapa-ganadores.pdf');
         }
 
         $coordenadas = $this->obtenerCoordenadas(); // Aquí defines las coordenadas de cada departamento
-        return view('reports.mapa', compact('coloresMap', 'ganadores', 'datosMapa', 'coordenadas'));
+        return view('reports.mapa', compact('coloresMap', 'datosMapa', 'coordenadas'));
     }
 
     // ==========================================
@@ -212,7 +203,8 @@ class ReportController extends Controller
 
         if ($request->has('format')) {
             if ($request->format === 'pdf') {
-                $pdf = Pdf::loadView('reports.incidentes_pdf', compact('incidentes'));
+                $logoBase64 = $this->generarLogo(); // Generamos el logo en Base64 para la marca de agua
+                $pdf = Pdf::loadView('reports.incidentes_pdf', compact('incidentes', 'logoBase64'));
                 return $pdf->stream('reporte-incidentes.pdf');
             }
             if ($request->format === 'excel') {
@@ -286,6 +278,16 @@ class ReportController extends Controller
         ];
 
         return $coordenadas;
+    }
+
+    private function generarLogo(){
+
+     $pathLogo = public_path('img/fisqlogo.png');
+            $typeLogo = pathinfo($pathLogo, PATHINFO_EXTENSION);
+            $dataLogo = file_get_contents($pathLogo);
+            $logoBase64 = 'data:image/' . $typeLogo . ';base64,' . base64_encode($dataLogo);
+            return $logoBase64;
+
     }
 
 }

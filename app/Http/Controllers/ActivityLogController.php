@@ -5,15 +5,38 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ActivityLog;
+use App\Models\User;
 
 class ActivityLogController extends Controller
 {
-    public function index()
-    {
-        // Traemos los logs ordenados del más nuevo al más viejo
-    // Usamos 'with' para traer el nombre del usuario sin hacer 100 consultas
-    $logs = ActivityLog::with('user')->latest()->paginate(20);
+    public function index(Request $request)
+{
+    $query = ActivityLog::with('user');
 
-    return view('logs.index', compact('logs'));
+    // Filtro por Usuario
+    if ($request->filled('user_id')) {
+        $query->where('user_id', $request->user_id);
     }
+
+    // Filtro por Módulo
+    if ($request->filled('module')) {
+        $query->where('module', $request->module);
+    }
+
+    // Filtro por Fecha
+    if ($request->filled('from')) {
+        $query->whereDate('created_at', '>=', $request->from);
+    }
+    if ($request->filled('to')) {
+        $query->whereDate('created_at', '<=', $request->to);
+    }
+
+    $logs = $query->latest()->paginate(20);
+    
+    // Datos para los selects de los filtros
+    $users = User::orderBy('name')->get();
+    $modules = ActivityLog::distinct()->pluck('module');
+
+    return view('logs.index', compact('logs', 'users', 'modules'));
+}
 }

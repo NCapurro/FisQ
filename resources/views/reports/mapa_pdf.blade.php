@@ -48,7 +48,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($ganadores as $dato)
+            @foreach($datosMapa as $dato)
             <tr>
                 <td style="text-align: left;">
                     <span class="color-box" style="background-color: {{ $dato['color'] }};"></span>
@@ -56,7 +56,7 @@
                 </td>
                 <td>{{ $dato['ganador'] }}</td>
                 <td style="text-align: center;">{{ number_format($dato['votos'], 0, ',', '.') }}</td>
-                <td style="text-align: center;">{{ $dato['porcentaje'] }}%</td>
+                <td style="text-align: center;">{{ $dato['porcentaje'] }}</td>
             </tr>
             @endforeach
         </tbody>

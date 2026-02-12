@@ -82,6 +82,11 @@ class User extends Authenticatable
         return $this->hasMany(Result::class);
     }
 
+    public function incidents()
+    {
+        return $this->hasMany(Incident::class);
+    }
+
 
     // Mutador para el atributo 'name', mayus y minus
     protected function name(): Attribute

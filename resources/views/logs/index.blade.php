@@ -1,46 +1,128 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h2><i class="fa-solid fa-list-check me-2"></i>Auditoría del Sistema</h2>
-    
-    <table class="table table-striped mt-4">
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Usuario</th>
-                <th>Módulo</th>
-                <th>Acción</th>
-                <th>Descripción</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($logs as $log)
-                <tr>
-                    <td>{{ $log->created_at->format('d/m/Y H:i') }}</td>
-                    <td>
-                        @if($log->user)
-                            <span class="fw-bold">{{ $log->user->name }}</span>
-                        @else
-                            <span class="text-muted">Sistema / Usuario Borrado</span>
-                        @endif
-                    </td>
-                    <td><span class="badge bg-secondary">{{ $log->module }}</span></td>
-                    <td>
-                        @if($log->action == 'crear') <span class="text-success fw-bold">Creación</span>
-                        @elseif($log->action == 'eliminar') <span class="text-danger fw-bold">Eliminación</span>
-                        @elseif($log->action == 'restaurar') <span class="text-info fw-bold">Restauración</span>
-                        @else {{ $log->action }} @endif
-                    </td>
-                    <td>{{ $log->description }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fa-solid fa-list-check me-2 text-primary"></i>Auditoría del Sistema</h2>
+        <a href="{{ route('logs.index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-eraser me-1"></i> Limpiar Filtros
+        </a>
+    </div>
+
+    {{-- Panel de Filtros --}}
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light rounded">
+            <form action="{{ route('logs.index') }}" method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small text-uppercase text-secondary">Usuario</label>
+                    <select name="user_id" class="form-select border-0 shadow-sm">
+                        <option value="">Todos los usuarios</option>
+                        @foreach($users as $user)
+                            <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
+                                {{ $user->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small text-uppercase text-secondary">Módulo</label>
+                    <select name="module" class="form-select border-0 shadow-sm">
+                        <option value="">Todos los módulos</option>
+                        {{-- Puedes hardcodear los módulos o traerlos de la DB con un pluck('module') --}}
+                        @foreach($modules as $module)
+                            <option value="{{ $module }}" {{ request('module') == $module ? 'selected' : '' }}>
+                                {{ ucfirst($module) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold small text-uppercase text-secondary">Rango de Fecha</label>
+                    <div class="input-group">
+                        <input type="date" name="from" class="form-control border-0 shadow-sm" value="{{ request('from') }}">
+                        <span class="input-group-text border-0 bg-transparent">a</span>
+                        <input type="date" name="to" class="form-control border-0 shadow-sm" value="{{ request('to') }}">
+                    </div>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Tabla de Resultados --}}
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-dark text-white">
+                        <tr>
+                            <th class="ps-4">Fecha</th>
+                            <th>Usuario</th>
+                            <th>Módulo</th>
+                            <th>Acción</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($logs as $log)
+                            <tr>
+                                <td class="ps-4 text-nowrap">{{ $log->created_at->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    @if($log->user)
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm me-2 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; font-size: 12px;">
+                                                {{ substr($log->user->name, 0, 2) }}
+                                            </div>
+                                            <span class="fw-bold">{{ $log->user->name }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-muted"><i class="fa-solid fa-robot me-1"></i> Sistema</span>
+                                    @endif
+                                </td>
+                                <td><span class="badge bg-light text-dark border">{{ ucfirst($log->module) }}</span></td>
+                                <td>
+                                    @php
+                                        $color = match($log->action) {
+                                            'crear' => 'success',
+                                            'eliminar' => 'danger',
+                                            'restaurar' => 'info',
+                                            default => 'primary'
+                                        };
+                                        $label = match($log->action) {
+                                            'crear' => 'Creación',
+                                            'eliminar' => 'Eliminación',
+                                            'restaurar' => 'Restauración',
+                                            default => ucfirst($log->action)
+                                        };
+                                    @endphp
+                                    <span class="badge bg-{{ $color }}">{{ $label }}</span>
+                                </td>
+                                <td class="small">{{ $log->description }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-triangle-exclamation fa-2x mb-3"></i>
+                                    <p>No se encontraron registros con los filtros seleccionados.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     {{-- Paginación --}}
-    <div class="d-flex justify-content-center">
-        {{ $logs->links() }}
+    <div class="mt-4">
+        {{ $logs->appends(request()->query())->links() }}
     </div>
 </div>
 @endsection

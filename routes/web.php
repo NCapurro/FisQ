@@ -14,6 +14,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\IncidentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -148,6 +149,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/mapa', [ReportController::class, 'mapa'])->name('mapa');
     // 3. Log de Incidentes
     Route::get('/incidentes', [ReportController::class, 'incidentes'])->name('incidentes');
-});
+
+    
+                                                                    });
+       
+
+    Route::post('/resolver-incidencia-id/{incident}', [IncidentController::class, 'resolve'])
+    ->name('incidents.mark_resolved');
+      Route::resource('incidents', IncidentController::class);
+    
+    
 
 });
