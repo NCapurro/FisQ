@@ -280,7 +280,7 @@ class ReportController extends Controller
         return $coordenadas;
     }
 
-    private function generarLogo(){
+    public function generarLogo(){
 
      $pathLogo = public_path('img/fisqlogo.png');
             $typeLogo = pathinfo($pathLogo, PATHINFO_EXTENSION);

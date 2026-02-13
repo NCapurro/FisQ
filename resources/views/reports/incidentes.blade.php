@@ -5,9 +5,13 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Reporte de Incidentes</h2>
         <div>
-            <a href="{{ route('reports.incidentes', request()->all() + ['format' => 'excel']) }}" class="btn btn-success">Excel</a>
-            <a href="{{ route('reports.incidentes', request()->all() + ['format' => 'pdf']) }}" class="btn btn-danger" target="_blank">PDF</a>
-        </div>
+              <a href="{{ route('reports.incidentes', request()->all() + ['format' => 'excel']) }}" class="btn btn-outline-success shadow-sm">
+        <i class="fa-solid fa-file-excel me-1"></i> Excel
+    </a>
+    <a href="{{ route('reports.incidentes', request()->all() + ['format' => 'pdf']) }}" class="btn btn-outline-danger shadow-sm">
+        <i class="fa-solid fa-file-pdf me-1"></i> PDF
+    </a>
+</div>
     </div>
 
     <div class="card mb-4 bg-light">

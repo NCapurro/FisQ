@@ -130,6 +130,12 @@ Route::middleware('auth')->group(function () {
     ->name('logs.index')
     ->middleware('auth');
 
+    // --- EXPORTACIÓN DE AUDITORÍA ---
+Route::get('/auditoria/excel', [ActivityLogController::class, 'exportExcel'])->name('logs.excel');
+Route::get('/auditoria/pdf', [ActivityLogController::class, 'exportPdf'])->name('logs.pdf');
+
+
+
     // --- PÁGINA DE AYUDA ---
     Route::get('/ayuda', [HelpController::class, 'index'])->name('help.index');
 

@@ -3,10 +3,17 @@
 @section('content')
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="fa-solid fa-list-check me-2 text-primary"></i>Auditoría del Sistema</h2>
-        <a href="{{ route('logs.index') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="fa-solid fa-eraser me-1"></i> Limpiar Filtros
-        </a>
+        
+    <h2 class="mb-0"><i class="fa-solid fa-list-check me-2 text-primary"></i>Auditoría del Sistema</h2>
+        <div class="d-flex gap-2">
+    <a href="{{ route('logs.excel', request()->all()) }}" class="btn btn-outline-success shadow-sm">
+        <i class="fa-solid fa-file-excel me-1"></i> Excel
+    </a>
+    <a href="{{ route('logs.pdf', request()->all()) }}" class="btn btn-outline-danger shadow-sm">
+        <i class="fa-solid fa-file-pdf me-1"></i> PDF
+    </a>
+</div>
+        
     </div>
 
     {{-- Panel de Filtros --}}
@@ -47,11 +54,20 @@
                     </div>
                 </div>
 
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100 shadow-sm">
-                        <i class="fa-solid fa-magnifying-glass me-1"></i> Filtrar
-                    </button>
-                </div>
+                <div class="col-md-2 d-flex align-items-end gap-1">
+    {{-- Botón Filtrar (Principal) --}}
+    <button type="submit" class="btn btn-primary w-100 shadow-sm fw-bold" title="Aplicar Filtros">
+        <i class="fa-solid fa-magnifying-glass"></i> Filtrar
+    </button>
+    
+    {{-- Botón Limpiar (Chiquito con X) --}}
+    <a href="{{ route('logs.index') }}" 
+       class="btn btn-outline-secondary shadow-sm px-2" 
+       title="Limpiar Filtros">
+        <i class="fa-solid fa-xmark"></i>
+    </a>
+</div>
+                
             </form>
         </div>
     </div>

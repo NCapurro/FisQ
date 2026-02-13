@@ -5,12 +5,12 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Reporte de Resultados por Departamento</h2>
         <div>
-            <a href="{{ route('reports.resultados', ['format' => 'excel']) }}" class="btn btn-success">
-                <i class="fa-solid fa-file-excel me-2"></i>Exportar Excel
-            </a>
-            <a href="{{ route('reports.resultados', ['format' => 'pdf']) }}" class="btn btn-danger" target="_blank">
-                <i class="fa-solid fa-file-pdf me-2"></i>Exportar PDF
-            </a>
+            <a href="{{ route('reports.resultados', ['format' => 'excel']) }}" class="btn btn-outline-success shadow-sm">
+        <i class="fa-solid fa-file-excel me-1"></i> Excel
+    </a>
+    <a href="{{ route('reports.resultados', ['format' => 'pdf']) }}" class="btn btn-outline-danger shadow-sm">
+        <i class="fa-solid fa-file-pdf me-1"></i> PDF
+    </a>
         </div>
     </div>
 

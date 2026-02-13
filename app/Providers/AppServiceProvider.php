@@ -9,11 +9,13 @@ use App\Observers\UserObserver;
 use App\Observers\SchoolObserver;
 use App\Observers\PoliticalPartyObserver;
 use App\Observers\MesaObserver;
+use App\Observers\IncidentObserver;
 
 use App\Models\User;
 use App\Models\School;
 use App\Models\PoliticalParty;
 use App\Models\Mesa;
+use App\Models\Incident;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
     User::observe(UserObserver::class);
     PoliticalParty::observe(PoliticalPartyObserver::class);
 
+    Incident::observe(IncidentObserver::class);
 
     // Configurar paginación para Bootstrap 5
     Paginator::useBootstrapFive();

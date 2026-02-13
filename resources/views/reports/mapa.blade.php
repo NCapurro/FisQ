@@ -58,9 +58,10 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Mapa Electoral - Ganadores</h2>
-        <a href="{{ route('reports.mapa', ['format' => 'pdf']) }}" class="btn btn-danger" target="_blank">
-            <i class="fa-solid fa-file-pdf me-2"></i>Descargar Mapa PDF
-        </a>
+
+        <a href="{{ route('reports.mapa', ['format' => 'pdf']) }}" class="btn btn-outline-danger shadow-sm">
+        <i class="fa-solid fa-file-pdf me-1"></i> Descargar PDF
+    </a>
     </div>
 
     <div class="row">
