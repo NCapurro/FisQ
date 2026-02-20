@@ -153,8 +153,18 @@
     document.addEventListener('DOMContentLoaded', function() {
         
         // 1. Inicializamos funciones existentes
+      try {
         calcularTotal();
+    } catch (error) {
+        console.warn("Fallo no crítico al inicializar calcularTotal:", error);
+    }
+
+    // 2. Inicializamos la geolocalización de forma segura
+    try {
         obtenerUbicacion();
+    } catch (error) {
+        console.warn("Fallo no crítico al obtener la ubicación (GPS):", error);
+    }
 
         // 2. Lógica de Previsualización de Imagen
         const photoInput = document.getElementById('photoInput');
@@ -211,6 +221,8 @@
         const displayTotal = document.getElementById('displayTotal');
         const totalCard = document.getElementById('totalCard');
         const btnGuardar = document.getElementById('btnGuardar');
+
+        const padron = parseInt(document.getElementById('electoresInput').value) || 0;
 
         document.getElementById('displayTotal').innerText = total;
 

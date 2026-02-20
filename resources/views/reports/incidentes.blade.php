@@ -17,23 +17,39 @@
     <div class="card mb-4 bg-light">
         <div class="card-body">
             <form method="GET" action="{{ route('reports.incidentes') }}" class="row g-3">
-                <div class="col-md-4">
-                    <label>Prioridad</label>
-                    <select name="priority" class="form-select">
-                        <option value="">Todas</option>
-                        <option value="alta" {{ request('priority') == 'alta' ? 'selected' : '' }}>Alta</option>
-                        <option value="media" {{ request('priority') == 'media' ? 'selected' : '' }}>Media</option>
-                        <option value="baja" {{ request('priority') == 'baja' ? 'selected' : '' }}>Baja</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label>Fecha</label>
-                    <input type="date" name="fecha" value="{{ request('fecha') }}" class="form-control">
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-                </div>
-            </form>
+    <div class="col-md-3">
+        <label class="form-label text-muted small fw-bold text-uppercase mb-1">Prioridad</label>
+        <select name="priority" class="form-select shadow-sm border-0">
+            <option value="">Todas</option>
+            <option value="alta" {{ request('priority') == 'alta' ? 'selected' : '' }}>Alta</option>
+            <option value="media" {{ request('priority') == 'media' ? 'selected' : '' }}>Media</option>
+            <option value="baja" {{ request('priority') == 'baja' ? 'selected' : '' }}>Baja</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label text-muted small fw-bold text-uppercase mb-1">Estado</label>
+        <select name="status" class="form-select shadow-sm border-0">
+            <option value="">Todos</option>
+            <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Resueltos</option>
+            <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>No Resueltos</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label text-muted small fw-bold text-uppercase mb-1">Fecha</label>
+        <input type="date" name="fecha" value="{{ request('fecha') }}" class="form-control shadow-sm border-0">
+    </div>
+
+    <div class="col-md-3 d-flex align-items-end gap-2">
+        <button type="submit" class="btn btn-primary w-100 shadow-sm">
+            <i class="fa-solid fa-filter me-1"></i> Filtrar
+        </button>
+        <a href="{{ route('reports.incidentes') }}" class="btn btn-outline-secondary shadow-sm px-3" title="Limpiar Filtros">
+            <i class="fa-solid fa-xmark"></i>
+        </a>
+    </div>
+</form>
         </div>
     </div>
 
@@ -93,6 +109,10 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    {{-- Agregamos la Paginación aquí abajo --}}
+    <div class="mt-4 d-flex justify-content-center">
+        {{ $incidentes->appends(request()->query())->links() }}
     </div>
 </div>
 @endsection

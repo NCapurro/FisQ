@@ -199,15 +199,21 @@ class ReportController extends Controller
             $query->whereDate('created_at', $request->fecha);
         }
 
-        $incidentes = $query->latest()->get();
+        if ($request->has('status') && $request->status !== null) {
+        $query->where('is_resolved', $request->status);
+    }
+
+        $incidentes = $query->latest()->paginate(15); // Paginamos para no saturar la vista
 
         if ($request->has('format')) {
             if ($request->format === 'pdf') {
+                $incidentes = $query->latest()->get(); // Para PDF queremos todos, no paginados
                 $logoBase64 = $this->generarLogo(); // Generamos el logo en Base64 para la marca de agua
                 $pdf = Pdf::loadView('reports.incidentes_pdf', compact('incidentes', 'logoBase64'));
                 return $pdf->stream('reporte-incidentes.pdf');
             }
             if ($request->format === 'excel') {
+                $incidentes = $query->latest()->get(); // Para Excel queremos todos, no paginados
                 return Excel::download(new IncidentesExport($incidentes), 'incidentes.xlsx');
             }
         }

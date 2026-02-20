@@ -30,6 +30,10 @@ Este proyecto fue desarrollado como trabajo final para la carrera de **Analista 
 - Buscador inteligente de fiscales con **Select2**.
 - Carga de actas de escrutinio con validación de datos.
 
+### 📁 Módulo de Reportes e Incidencias
+- **Generación de Reportes:** Exportación de datos críticos (Auditoría, Resultados de Mesas e Incidentes) en formatos **PDF** y **Excel**, con soporte para previsualización en el navegador y aplicación de filtros dinámicos.
+- **Gestión de Incidencias:** Sistema de alerta temprana que permite a los fiscales reportar problemas en las mesas de votación y a los administradores llevar un seguimiento de su resolución en tiempo real.
+
 ### 🛡️ Seguridad y Auditoría
 - **Autenticación Robusta:** Login seguro y sistema de recuperación de contraseñas vía email (simulado en logs).
 - **Roles y Permisos:** Diferenciación estricta entre Administradores y Fiscales.
@@ -49,6 +53,8 @@ Este proyecto fue desarrollado como trabajo final para la carrera de **Analista 
     * `select2`: Búsquedas asíncronas en listas desplegables.
     * `leaflet.js`: Mapas interactivos con OpenStreetMap.
     * `fontawesome`: Iconografía.
+    * `maatwebsite/excel`: Generación y exportación nativa de planillas de cálculo (.xlsx).
+    * `barryvdh/laravel-dompdf`: Motor de renderizado para exportación de documentos oficiales y reportes en formato PDF.
 
 ---
 
