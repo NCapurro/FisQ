@@ -106,7 +106,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Nicolas',
             'lastname' => 'Capurro',
             'email' => 'admin@fisq.com',
-            'password' => Hash::make('admin123'), // CLAVE: admin123
+            'password' => Hash::make('admin2398!'), // CLAVE: admin2398!
             'phone' => '3434531520',
             'address' => 'Oficina Central',
             'role' => 'admin',
@@ -119,7 +119,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Juan',
             'lastname' => 'Fiscal',
             'email' => 'fiscal@fisq.com',
-            'password' => Hash::make('fiscal123'), // CLAVE: fiscal123
+            'password' => Hash::make('fiscal2398!'), // CLAVE: fiscal2398!
             'phone' => '345333444',
             'address' => 'Calle 12',
             'role' => 'user',
