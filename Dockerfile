@@ -39,6 +39,8 @@ RUN composer install --no-dev --optimize-autoloader \
     && npm install \
     && npm run build
 
+RUN apt-get update && apt-get install -y default-mysql-client
+
 # Permisos fundamentales para Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache

@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Illuminate\Support\Facades\Log; // <-- Agregamos Log para guardar errores de forma segura
 
 class BackupController extends Controller
 {
     // DEFINICIÓN DE LA CARPETA
-    // Esto creará: C:\xampp\htdocs\fisq\storage\app\backups
+    // Esto creará: /var/www/html/storage/app/backups en el contenedor Linux
     private $backupFolder = 'backups';
 
     // Función auxiliar para obtener la ruta completa del sistema
@@ -22,30 +23,24 @@ class BackupController extends Controller
     {
         $folderPath = $this->getAbsolutePath();
 
-        // 1. Si la carpeta no existe, la crea
         if (!file_exists($folderPath)) {
             mkdir($folderPath, 0777, true);
         }
 
-        // 2. GLOB (Nativo de PHP) para buscar archivos .sql
-        // Esto busca FÍSICAMENTE en la carpeta, sin intermediarios de Laravel
         $pattern = $folderPath . '/*.{sql}';
-        $files = glob($pattern, GLOB_BRACE);
+        $files = glob($pattern, GLOB_BRACE) ?: []; // Evitamos error si glob devuelve false
 
         $backups = [];
 
         foreach ($files as $file) {
-            // $file aquí es la ruta completa (C:\xampp\...)
             $backups[] = [
                 'path' => $file,
-                'name' => basename($file), // Solo el nombre: backup.sql
+                'name' => basename($file),
                 'size' => $this->humanFileSize(filesize($file)),
-                'date' => date('Y-m-d H:i:s', filemtime($file)), // Fecha real del archivo
+                'date' => date('Y-m-d H:i:s', filemtime($file)),
             ];
         }
 
-        // El más nuevo primero
-        // Uso usort porque $files de glob no siempre viene ordenado por fecha
         usort($backups, function($a, $b) {
             return $b['date'] <=> $a['date'];
         });
@@ -55,60 +50,57 @@ class BackupController extends Controller
 
     public function create()
     {
-        $dbName = env('DB_DATABASE');
-        $dbUser = env('DB_USERNAME');
-        $dbPass = env('DB_PASSWORD');
-        $dbHost = '127.0.0.1';
+        // Usamos config() en lugar de env() por si las variables de entorno están cacheadas
+        $dbName = config('database.connections.mysql.database');
+        $dbUser = config('database.connections.mysql.username');
+        $dbPass = config('database.connections.mysql.password');
+        $dbHost = config('database.connections.mysql.host'); // En Docker esto apuntará a 'fisq_db'
 
         $filename = 'backup-' . date('Y-m-d-H-i-s') . '.sql';
         
-        // Uso la misma función de ruta que el index
         $folderPath = $this->getAbsolutePath();
         if (!file_exists($folderPath)) mkdir($folderPath, 0777, true);
         
         $filePath = $folderPath . '/' . $filename;
 
-        // RUTA MYSQLDUMP (Ajustar si es necesario)
-        $mysqldumpPath = '"C:/Program Files/MySQL/MySQL Server 8.0/bin/mysqldump.exe"';
+        // En Linux/Docker, el ejecutable es simplemente 'mysqldump'
+        $mysqldumpPath = 'mysqldump';
 
-        $command = "{$mysqldumpPath} --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host={$dbHost} --protocol=tcp --column-statistics=0 \"{$dbName}\" --result-file=\"{$filePath}\"";
+        // Armamos el comando (sin variables de entorno de Windows)
+        $command = "{$mysqldumpPath} --user=\"{$dbUser}\" --password=\"{$dbPass}\" --host=\"{$dbHost}\" --column-statistics=0 \"{$dbName}\" --result-file=\"{$filePath}\"";
 
         try {
             $process = Process::fromShellCommandline($command);
-            $process->setEnv([
-                'SystemRoot' => 'C:\\Windows',
-                'windir'     => 'C:\\Windows',
-                'TMP'        => 'C:\\Windows\\Temp',
-                'TEMP'       => 'C:\\Windows\\Temp',
-                'PATH'       => getenv('PATH')
-            ]);
             $process->setTimeout(300);
             $process->run();
 
             if (!$process->isSuccessful()) {
                 if (file_exists($filePath)) unlink($filePath);
+                
+                // GUARDAMOS EL ERROR REAL EN LOS LOGS, NO EN LA VISTA
+                Log::error('Fallo al ejecutar mysqldump: ' . $process->getErrorOutput());
+                
                 throw new ProcessFailedException($process);
             }
 
-            return redirect()->back()->with('success', 'Backup generado: ' . $filename);
+            return redirect()->back()->with('success', 'Backup generado correctamente: ' . $filename);
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+            // SI FALLA, LE MOSTRAMOS ESTO AL USUARIO (Sin exponer la clave)
+            Log::error('Excepción creando backup: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Ocurrió un error al generar el backup. Los detalles técnicos han sido guardados en los registros del servidor por seguridad.');
         }
     }
 
     public function download($file_name)
     {
-        // Construir ruta absoluta
         $filePath = $this->getAbsolutePath() . '/' . $file_name;
 
-        // Verificar con file_exists nativo
         if (file_exists($filePath)) {
-            // Uso response()->download para forzar la descarga desde ruta absoluta
             return response()->download($filePath);
         }
 
-        return redirect()->back()->with('error', 'El archivo no existe.');
+        return redirect()->back()->with('error', 'El archivo de backup no existe.');
     }
 
     public function delete($file_name)
@@ -116,11 +108,11 @@ class BackupController extends Controller
         $filePath = $this->getAbsolutePath() . '/' . $file_name;
 
         if (file_exists($filePath)) {
-            unlink($filePath); // Borrado nativo de PHP
-            return redirect()->back()->with('success', 'Backup eliminado.');
+            unlink($filePath);
+            return redirect()->back()->with('success', 'Backup eliminado de forma permanente.');
         }
 
-        return redirect()->back()->with('error', 'El archivo no existe.');
+        return redirect()->back()->with('error', 'El archivo no existe o ya fue eliminado.');
     }
 
     // AUXILIAR
